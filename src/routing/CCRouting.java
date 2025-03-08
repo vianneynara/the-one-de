@@ -2,8 +2,6 @@ package routing;
 
 import java.util.*;
 import core.*;
-import javafx.beans.property.SimpleListProperty;
-import lombok.val;
 import routing.community.Duration;
 // import reinforcement.qlearn.QLearner;
 
