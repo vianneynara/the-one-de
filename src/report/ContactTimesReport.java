@@ -20,7 +20,10 @@ import core.Settings;
 public class ContactTimesReport extends Report implements ConnectionListener {
 	protected HashMap<ConnectionInfo, ConnectionInfo> connections;
 	private Vector<Integer> nrofContacts;
-	
+
+	/* TOTAL CONTACTS COUNTER */
+	protected int totalContacts;
+
 	/** Granularity -setting id ({@value}). Defines how many simulated seconds
 	 * are grouped in one reported interval. */
 	public static final String GRANULARITY = "granularity";
@@ -47,6 +50,9 @@ public class ContactTimesReport extends Report implements ConnectionListener {
 		super.init();
 		this.connections = new HashMap<ConnectionInfo,ConnectionInfo>();
 		this.nrofContacts = new Vector<Integer>();
+
+		/* INITIALIZE TOTAL CONTACTS */
+		this.totalContacts = 0;
 	}
 		
 	public void hostsConnected(DTNHost host1, DTNHost host2) {
