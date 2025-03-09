@@ -58,7 +58,8 @@ Scenario.nrofHostGroups = 1
 
 # Common settings for all groups
 Group.movementModel = RandomWaypoint
-Group.router = SprayAndWaitRouter
+# Group.router = SprayAndWaitRouter
+Group.router = DecisionEngineRouter
 Group.bufferSize = 5M
 Group.waitTime = 0, 120
 # All nodes have the bluetooth interface
@@ -75,11 +76,27 @@ Group.nrofHosts = 100
 Group1.groupID = p
 
 ##########################################################################################
+# DECISION ENGINE ROUTER CONFIGURATION
+##########################################################################################
+
+DecisionEngineRouter.decisionEngine = SprayAndWaitDERouter
+DecisionEngineRouter.nrofCopies = 10
+DecisionEngineRouter.binaryMode = true
+
+##########################################################################################
 # ROUTER CONFIGURATION
 ##########################################################################################
 
-SprayAndWaitRouter.nrofCopies = 10
-SprayAndWaitRouter.binaryMode = true
+SnWDE.nrofCopies = 10
+SnWDE.binaryMode = true
+
+# Fallback
+# Group.nrofCopies = 10
+# Group.binaryMode = true
+
+# Fallback
+# SnWDecisionEngine.nrofCopies = 10
+# SnWDecisionEngine.binaryMode = true
 
 ##########################################################################################
 # Message creation parameters
