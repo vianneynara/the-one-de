@@ -26,8 +26,7 @@ public class SprayAndWaitRouter extends ActiveRouter {
 	/** SprayAndWait router's settings name space ({@value})*/ 
 	public static final String SPRAYANDWAIT_NS = "SprayAndWaitRouter";
 	/** Message property key */
-	public static final String MSG_COUNT_PROPERTY = SPRAYANDWAIT_NS + "." +
-		"copies";
+	public static final String MSG_COUNT_PROPERTY = SPRAYANDWAIT_NS + "." + "copies";
 	
 	protected int initialNrofCopies;
 	protected boolean isBinary;
