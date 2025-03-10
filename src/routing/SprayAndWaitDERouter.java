@@ -74,10 +74,8 @@ public class SprayAndWaitDERouter implements RoutingDecisionEngine {
 	 * */
 	@Override
 	public boolean isFinalDest(Message m, DTNHost otherHost) {
-		int nrofCopies = (int) m.getProperty(MSG_COUNT_PROPERTY);
-        nrofCopies = (int) Math.ceil(nrofCopies / 2.0);
-        m.updateProperty(MSG_COUNT_PROPERTY, nrofCopies);
-
+//		if (otherHost.equals(m.getTo()))
+//			System.out.printf("%s is arriving to finalDest: %s %n", m.getId(), otherHost);
 
 		// checks whether the other host is the message's destination
 		return otherHost.equals(m.getTo());
@@ -90,6 +88,17 @@ public class SprayAndWaitDERouter implements RoutingDecisionEngine {
 	 * */
 	@Override
 	public boolean shouldSaveReceivedMessage(Message m, DTNHost thisHost) {
+		// Upon receiving the message, split it//decrement it
+//		System.out.printf("shouldSaveReceivedMessage: %s, has copies of %d\n", m.toString(), (int) m.getProperty(MSG_COUNT_PROPERTY));
+		int nrofCopies = (int) m.getProperty(MSG_COUNT_PROPERTY);
+		if (isBinary) {
+			nrofCopies = (int) Math.ceil(nrofCopies / 2.0);
+			m.updateProperty(MSG_COUNT_PROPERTY, nrofCopies);
+		} else {
+			m.updateProperty(MSG_COUNT_PROPERTY, --nrofCopies);
+		}
+//		System.out.printf("shouldSaveReceivedMessage: %s, has copies of %d\n", m.toString(), (int) m.getProperty(MSG_COUNT_PROPERTY));
+
 		// saves received message when the destination is not this current host
 		return !m.getTo().equals(thisHost);
 	}
