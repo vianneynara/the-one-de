@@ -102,6 +102,11 @@ public class SprayAndWaitDERouter implements RoutingDecisionEngine {
 	 * */
 	@Override
 	public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost) {
+		// why would we need to forward the message if thisHost is the destination?
+		if (m.getTo().equals(thisHost)) {
+			return false;
+		}
+
 		// the other host is the message's destination! yay
 		if (m.getTo().equals(otherHost)) {
 			return true;
