@@ -136,7 +136,6 @@ public class SprayAndWaitDERouter implements RoutingDecisionEngine {
 			return true;
 		}
 
-		// the message still has remaining copies left
 		return ((int) m.getProperty(MSG_COUNT_PROPERTY) > 1) && (otherHost != null);
 	}
 
@@ -158,6 +157,11 @@ public class SprayAndWaitDERouter implements RoutingDecisionEngine {
 			return true;
 		}
 
+		/*
+		Don't delete the message since it has not reached destination yet.
+		Message copy is decremented in this method as it's being executed in #transferDone()
+		*/
+
 		// check if the current SnW uses binary mode to decrement
 		if (isBinary) {
 			// use floor (lower bound) on the sending end
@@ -168,7 +172,6 @@ public class SprayAndWaitDERouter implements RoutingDecisionEngine {
 
 		m.updateProperty(MSG_COUNT_PROPERTY, nrofCopies);
 
-		// don't delete the message, it has not found the destination yet
 		return false;
 	}
 
