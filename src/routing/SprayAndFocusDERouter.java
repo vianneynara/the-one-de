@@ -1,9 +1,6 @@
 package routing;
 
-import core.Connection;
-import core.DTNHost;
-import core.Message;
-import core.Settings;
+import core.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,25 +30,18 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	/**
 	 * Message property key
 	 */
-	public static final String MSG_COUNT_PROPERTY = SPRAYANDWAIT_NS + "." + "copies";
-	/**
-	 * Message property key for summary vector messages exchanged between direct peers
-	 */
-	public static final String SUMMARY_XCHG_PROP = SPRAYANDWAIT_NS + "." + "protoXchg";
+	public static final String MSG_COUNT_PROP = SPRAYANDWAIT_NS + "." + "copies";
 
-	/* Focus router properties */
-	protected static final String SUMMARY_XCHG_IDPREFIX = "summary";
-	protected static final double defaultTransitivityThreshold = 60.0;
-	protected static int protocolMsgIdx = 0;
+//	/* Focus router properties */
+//	protected static final double DEFAULT_TRANSITIVITY_THRESHOLD = 1.0;
 
 	/* Spray And Focus router properties */
 	protected int initialNrofCopies;
 	protected boolean isBinary;
 	protected double transitivityTimerThreshold;
 
-	/* Holds the encounters between this host and other hosts */
-	protected Map<DTNHost, EncounterInfo> localEncounters;
-	protected Map<DTNHost, Map<DTNHost, EncounterInfo>> neighborEncounters;
+	/* Holds the contacts between this host and other hosts */
+	protected Map<DTNHost, Double> localEncounters;
 
 	/**
 	 * Settings constructor.
@@ -64,14 +54,13 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 		initialNrofCopies = s.getInt(NROF_COPIES);
 		isBinary = s.getBoolean(BINARY_MODE);
 
-		if (s.contains(TRANSITIVITY_THRESHOLD)) {
-			transitivityTimerThreshold = s.getDouble(TRANSITIVITY_THRESHOLD);
-		} else {
-			transitivityTimerThreshold = defaultTransitivityThreshold;
-		}
+//		if (s.contains(TRANSITIVITY_THRESHOLD)) {
+//			transitivityTimerThreshold = s.getDouble(TRANSITIVITY_THRESHOLD);
+//		} else {
+//			transitivityTimerThreshold = DEFAULT_TRANSITIVITY_THRESHOLD;
+//		}
 
 		localEncounters = new HashMap<>();
-		neighborEncounters = new HashMap<>();
 	}
 
 	/**
@@ -80,10 +69,9 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	public SprayAndFocusDERouter(SprayAndFocusDERouter r) {
 		this.initialNrofCopies = r.initialNrofCopies;
 		this.isBinary = r.isBinary;
-		this.transitivityTimerThreshold = r.transitivityTimerThreshold;
+//		this.transitivityTimerThreshold = r.transitivityTimerThreshold;
 
 		this.localEncounters = new HashMap<>();
-		this.neighborEncounters = new HashMap<>();
 	}
 
 	@Override
@@ -94,8 +82,43 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	public void connectionDown(DTNHost thisHost, DTNHost peer) {
 	}
 
+	/**
+	 * This function is called during encounter between two decision engines to exchange and update
+	 * information in a simultaneous fashion.
+	 *
+	 * @implNote  Definition 2.3 (Timer Transitivity) Let a node A encounter a node B at distance dAB.
+	 * Let further tm(d) denote the expected time it takes a node to move a distance d
+	 * under a given mobility model. Then: ∀j= B : τB(j) < τA(j) −tm(dAB),set τA(j)=τB(j)+tm(dAB).
+	 */
 	@Override
 	public void doExchangeForNewConnection(Connection con, DTNHost peer) {
+		DTNHost self = con.getOtherNode(peer);
+		SprayAndFocusDERouter peerRouter = getDecisionEngineRouter(peer);
+
+		// update encounters of each host
+		this.localEncounters.put(peer, SimClock.getTime());
+		peerRouter.localEncounters.put(self, SimClock.getTime());
+
+		// update transitivity
+		//  ∀j= B : τB(j) < τA(j) −tm(dAB), set τA(j)=τB(j)+tm(dAB)
+		// untuk setiap host (j) pada B (peer), lakukan:
+		for (Map.Entry<DTNHost, Double> entry : peerRouter.localEncounters.entrySet()) {
+			DTNHost host = entry.getKey();
+			double peerLastEncounterTime = entry.getValue();
+			// make the default zero of non-existent contact big to let it be overridden.
+			double selfLastEncounterTime = this.localEncounters.getOrDefault(host, Double.POSITIVE_INFINITY);
+
+			double distanceAB = self.getLocation().distance(peer.getLocation());
+
+			// set default value since path could be null (i got NullPointerException lol)
+			double selfSpeed = self.getPath() != null ? self.getPath().getSpeed() : 0.0;
+			double peerSpeed = peer.getPath() != null ? peer.getPath().getSpeed() : 0.0;
+			double expectedTimeToMove = distanceAB / Math.max(selfSpeed, peerSpeed);
+
+			if (peerLastEncounterTime < selfLastEncounterTime - expectedTimeToMove) {
+				this.localEncounters.put(host, peerLastEncounterTime + expectedTimeToMove);
+			}
+		}
 	}
 
 	/**
@@ -104,8 +127,7 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	@Override
 	public boolean newMessage(Message m) {
 		// adding spray and wait spray special property
-		m.addProperty(MSG_COUNT_PROPERTY, initialNrofCopies);
-		m.addProperty(SUMMARY_XCHG_PROP, localEncounters);
+		m.addProperty(MSG_COUNT_PROP, initialNrofCopies);
 
 		// message creation is always allowed
 		return true;
@@ -136,15 +158,16 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 		// this host which receives the message is not the destination thus,
 		// saving this message to be further routed.
 		if (!m.getTo().equals(thisHost)) {
+
 			// Upon receiving the message, split it//decrement it
 //			System.out.printf("shouldSaveReceivedMessage: %s, has copies of %d\n", m.toString(), (int) m.getProperty(MSG_COUNT_PROPERTY));
-			int nrofCopies = (int) m.getProperty(MSG_COUNT_PROPERTY);
+			int nrofCopies = (int) m.getProperty(MSG_COUNT_PROP);
 			if (isBinary) {
 				// use ceil (upper bound) on the receiving end
 				nrofCopies = (int) Math.ceil(nrofCopies / 2.0);
-				m.updateProperty(MSG_COUNT_PROPERTY, nrofCopies);
+				m.updateProperty(MSG_COUNT_PROP, nrofCopies);
 			} else {
-				m.updateProperty(MSG_COUNT_PROPERTY, --nrofCopies);
+				m.updateProperty(MSG_COUNT_PROP, --nrofCopies);
 			}
 //			System.out.printf("shouldSaveReceivedMessage: %s, has copies of %d\n", m.toString(), (int) m.getProperty(MSG_COUNT_PROPERTY));
 			return true;
@@ -172,7 +195,34 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 			return true;
 		}
 
-		return ((int) m.getProperty(MSG_COUNT_PROPERTY) > 1) && (otherHost != null);
+		// not within the focus phase, give remaining copies
+		if (((int) m.getProperty(MSG_COUNT_PROP) > 1) && (otherHost != null)) {
+			return true;
+		}
+
+		/* FOCUS PHASE */
+
+		DTNHost destination = m.getTo();
+		//
+		assert otherHost != null : "Other host should not be null!";
+		SprayAndFocusDERouter peerRouter = getDecisionEngineRouter(otherHost);
+
+		// other host has never encountered the destination
+		if (!getDecisionEngineRouter(otherHost).localEncounters.containsKey(destination)) {
+			return false;
+		}
+
+		// this host have never encountered the destination, but the other host has
+		if (!this.localEncounters.containsKey(destination)) {
+			return true;
+		}
+
+		// send message if the peer has more recent encounter than this host
+		if (peerRouter.localEncounters.get(destination) > this.localEncounters.get(destination)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -185,7 +235,7 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	@Override
 	public boolean shouldDeleteSentMessage(Message m, DTNHost otherHost) {
 		// gather determining property
-		int nrofCopies = (int) m.getProperty(MSG_COUNT_PROPERTY);
+		int nrofCopies = (int) m.getProperty(MSG_COUNT_PROP);
 
 		// message does not have any more copies to share, delete it.
 		// this may indicate that the message has been received by its destination
@@ -206,7 +256,7 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 			nrofCopies--;
 		}
 
-		m.updateProperty(MSG_COUNT_PROPERTY, nrofCopies);
+		m.updateProperty(MSG_COUNT_PROP, nrofCopies);
 
 		return false;
 	}
@@ -221,7 +271,7 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	 */
 	@Override
 	public boolean shouldDeleteOldMessage(Message m, DTNHost hostReportingOld) {
-		return m.getTtl() < 1 || (int) m.getProperty(MSG_COUNT_PROPERTY) < 1 || m.getTo().equals(hostReportingOld);
+		return m.getTtl() < 1 || (int) m.getProperty(MSG_COUNT_PROP) < 1 || m.getTo().equals(hostReportingOld);
 	}
 
 	@Override
@@ -239,7 +289,6 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	 * This replicates Bryan's version of the method when trying to directly access other router.
 	 * We don't need it here.
 	 */
-	@Deprecated
 	private SprayAndFocusDERouter getDecisionEngineRouter(DTNHost otherHost) {
 		MessageRouter otherRouter = otherHost.getRouter();
 
@@ -252,42 +301,5 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 			return (SprayAndFocusDERouter) deRouting;
 		}
 		throw new IllegalStateException("This router only works with another SprayAndWaitDERouter routing");
-	}
-
-	/**
-	 * Helper method to get last seen information of the host from its {@link #localEncounters}.
-	 *
-	 * @return The last seen value if exists, 0.0 otherwise.
-	 * */
-	protected double getLastSeenOfLocalEncounterFromHost(DTNHost host) {
-		if (localEncounters.containsKey(host)) {
-			return localEncounters.get(host).getLastSeenTime();
-		} else {
-			return 0.0;
-		}
-	}
-
-	/**
-	 * Stores all necessary info about encounters made by this host to some other host.
-	 * At the moment, all that's needed is the timestamp of the <b>LAST TIME SEEN</b>
-	 * these two hosts met.
-	 *
-	 * @author PJ Dillon, University of Pittsburgh
-	 */
-	protected class EncounterInfo {
-
-		protected double seenAtTime;
-
-		public EncounterInfo(double atTime) {
-			this.seenAtTime = atTime;
-		}
-
-		public double getLastSeenTime() {
-			return seenAtTime;
-		}
-
-		public void setLastSeenTime(double atTime) {
-			this.seenAtTime = atTime;
-		}
 	}
 }
