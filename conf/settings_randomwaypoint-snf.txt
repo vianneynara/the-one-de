@@ -83,6 +83,11 @@ DecisionEngineRouter.decisionEngine = SprayAndFocusDERouter
 DecisionEngineRouter.nrofCopies = 10
 DecisionEngineRouter.binaryMode = true
 
+SprayAndWaitRouter.nrofCopies = 10
+SprayAndWaitRouter.binaryMode = true
+
+SprayAndFocusRouter.nrofCopies = 10
+
 ##########################################################################################
 # ROUTER CONFIGURATION
 ##########################################################################################
