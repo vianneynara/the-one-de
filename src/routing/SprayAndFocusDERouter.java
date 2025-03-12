@@ -26,11 +26,11 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	/**
 	 * SprayAndWait router's settings name space ({@value})
 	 */
-	public static final String SPRAYANDWAIT_NS = "SprayAndWaitDERouter";
+	public static final String SPRAYANDFOCUS_NS = "SprayAndFocusDERouter";
 	/**
 	 * Message property key
 	 */
-	public static final String MSG_COUNT_PROP = SPRAYANDWAIT_NS + "." + "copies";
+	public static final String MSG_COUNT_PROP = SPRAYANDFOCUS_NS + "." + "copies";
 
 //	/* Focus router properties */
 //	protected static final double DEFAULT_TRANSITIVITY_THRESHOLD = 1.0;
@@ -48,7 +48,7 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	 */
 	public SprayAndFocusDERouter(Settings s) {
 		if (s == null) {
-			s = new Settings(SPRAYANDWAIT_NS);
+			s = new Settings(SPRAYANDFOCUS_NS);
 		}
 
 		initialNrofCopies = s.getInt(NROF_COPIES);
