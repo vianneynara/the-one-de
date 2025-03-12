@@ -1,6 +1,7 @@
 package report;
 
 import core.*;
+import routing.SprayAndFocusRouter;
 import routing.SprayAndWaitDERouter;
 
 import java.util.*;
@@ -25,7 +26,7 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 	private List<Integer> hopCounts;
 	private List<Double> msgBufferTime;
 	private List<Double> rtt; // round trip times
-	private Map<String, Integer> messageCopies;
+//	private Map<String, Integer> messageCopies;
 
 	private int nrofDropped;
 	private int nrofRemoved;
@@ -63,7 +64,7 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 		this.msgBufferTime = new ArrayList<Double>();
 		this.hopCounts = new ArrayList<Integer>();
 		this.rtt = new ArrayList<Double>();
-		this.messageCopies = new HashMap<>();
+//		this.messageCopies = new HashMap<>();
 
 		this.nrofDropped = 0;
 		this.nrofRemoved = 0;
@@ -151,7 +152,7 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 			this.hopCounts.add(m.getHops().size() - 1);
 
 			// Used to see the average messages number of copies
-			this.messageCopies.put(m.getId(), (int) m.getProperty(SprayAndWaitDERouter.MSG_COUNT_PROPERTY));
+//			this.messageCopies.put(m.getId(), (int) m.getProperty(SprayAndFocusRouter.MSG_COUNT_PROP));
 
 			if (m.isResponse()) {
 				this.rtt.add(getSimTime() - m.getRequest().getCreationTime());
@@ -201,19 +202,19 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 		}
 
 		// simclock, conncetions/total contacts, delivery prob, overheads, avg latency, total forwards
-//		String currentReport = String.format("%.2f;%d;%.4f;%.4f;%s;%d",
-//			SimClock.getTime(), totalContacts, deliveryProb, overHead,	 getAverage(this.latencies), nrofRelayed);
+		String currentReport = String.format("%.2f;%d;%.4f;%.4f;%s;%d",
+			SimClock.getTime(), totalContacts, deliveryProb, overHead,	 getAverage(this.latencies), nrofRelayed);
 
-		/*Checking the average copies within the network*/
-		double averageMessageCopies = 0.0;
-		for (int copies : this.messageCopies.values()) {
-			averageMessageCopies += copies;
-		}
-		averageMessageCopies /= this.messageCopies.size();
-
-		// simclock, conncetions/total contacts, delivery prob, overheads, avg latency, total forwards
-		String currentReport = String.format("%.2f;%d;%.4f;%.4f;%s;%d;%f",
-			SimClock.getTime(), totalContacts, deliveryProb, overHead, getAverage(this.latencies), nrofRelayed, averageMessageCopies);
+//		/*Checking the average copies within the network*/
+//		double averageMessageCopies = 0.0;
+//		for (int copies : this.messageCopies.values()) {
+//			averageMessageCopies += copies;
+//		}
+//		averageMessageCopies /= this.messageCopies.size();
+//
+//		// simclock, conncetions/total contacts, delivery prob, overheads, avg latency, total forwards
+//		String currentReport = String.format("%.2f;%d;%.4f;%.4f;%s;%d;%f",
+//			SimClock.getTime(), totalContacts, deliveryProb, overHead, getAverage(this.latencies), nrofRelayed, averageMessageCopies);
 
 		write(currentReport);
 		System.out.println(currentReport);
