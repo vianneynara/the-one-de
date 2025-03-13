@@ -89,6 +89,11 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 	 * @implNote  Definition 2.3 (Timer Transitivity) Let a node A encounter a node B at distance dAB.
 	 * Let further tm(d) denote the expected time it takes a node to move a distance d
 	 * under a given mobility model. Then: ∀j= B : τB(j) < τA(j) −tm(dAB),set τA(j)=τB(j)+tm(dAB).
+	 * <B>
+	 *     Reference: Spyropoulos, T., Psounis, K., & Raghavendra, C. S. (2007).
+	 *     Spray and Focus: Efficient Mobility-Assisted Routing for Heterogeneous and Correlated Mobility.
+	 *     Proceedings of the Fifth Annual IEEE International Conference on Pervasive Computing and Communications Workshops (PerComW'07).
+	 * </B>
 	 */
 	@Override
 	public void doExchangeForNewConnection(Connection con, DTNHost peer) {
