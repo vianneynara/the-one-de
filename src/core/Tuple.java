@@ -44,4 +44,8 @@ public class Tuple<K,V>  {
 	public String toString() {
 		return key.toString() + ":" + value.toString();
 	}
+
+	public static <K, V> Tuple<K, V> of(K key, V value) {
+		return new Tuple<>(key, value);
+	}
 }
