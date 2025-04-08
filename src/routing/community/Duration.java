@@ -22,4 +22,8 @@ public class Duration
 	 * @param e Initial end value
 	 */
 	public Duration(double s, double e) {start = s; end = e;}
+
+	public static Duration from(double start, double end) {
+		return new Duration(start, end);
+	}
 }
