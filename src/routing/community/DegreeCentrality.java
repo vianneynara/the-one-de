@@ -18,7 +18,7 @@ import core.*;
  * (2008) (the bibtex record is included below for convenience). The discussion
  * around this algorithm was a bit vague. This class does not compute the node's
  * degree using any kind of averaging over a set of past time windows as is done
- * in {@link CWindowCentrality}, {@link SWindowCentrality}, or 
+ * in {@link CWindowCentrality}, {@link SWindowCentrality}, or
  * {@link AvgDegreeCentrality}. Instead, the node's centrality is defined here
  * as the total number of unique contacts (degree) the node has had over the 
  * entire simulation. 
