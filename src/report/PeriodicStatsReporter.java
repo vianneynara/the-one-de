@@ -148,8 +148,7 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 
 		this.nrofRelayed++;
 		if (finalTarget) {
-			this.latencies.add(getSimTime() -
-			this.creationTimes.get(m.getId()));
+			this.latencies.add(getSimTime() - this.creationTimes.get(m.getId()));
 			this.nrofDelivered++;
 			this.hopCounts.add(m.getHops().size() - 1);
 
@@ -166,7 +165,7 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 	/**
 	 * Used to trigger the processes with the defined intervals.
 	 * Uses hostsConnected instead because of updated's method inconsistencies on large intervals.
-	 * */
+	 */
 	@Override
 	public void hostsConnected(DTNHost host1, DTNHost host2) {
 		super.hostsConnected(host1, host2);
@@ -205,7 +204,7 @@ public class PeriodicStatsReporter extends ContactTimesReport implements Message
 
 		// simclock, conncetions/total contacts, delivery prob, overheads, avg latency, total forwards
 		String currentReport = String.format("%.2f;%d;%.4f;%.4f;%s;%d",
-			SimClock.getTime(), totalContacts, deliveryProb, overHead,	 getAverage(this.latencies), nrofRelayed);
+			SimClock.getTime(), totalContacts, deliveryProb, overHead, getAverage(this.latencies), nrofRelayed);
 
 //		/*Checking the average copies within the network*/
 //		double averageMessageCopies = 0.0;
