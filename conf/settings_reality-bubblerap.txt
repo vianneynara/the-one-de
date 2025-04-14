@@ -4,7 +4,8 @@
 
 Scenario.name = BubbleRap
 Scenario.simulateConnections = false
-Scenario.updateInterval = 0.1
+# Scenario.updateInterval = 0.1
+Scenario.updateInterval = 1
 
 # Reality dataset end-time
 Scenario.endTime = 16981816
@@ -66,7 +67,8 @@ Events1.prefix = E
 ## Event 2
 Events2.class = MessageEventGenerator
 Events2.interval = 580,620
-Events2.size = 500k,750k
+# Events2.size = 500k,750k
+Events2.size = 250k,500k
 Events2.hosts = 0,99
 Events2.prefix = M
 
@@ -88,7 +90,7 @@ MapBasedMovement.mapFile4 = data/shops.wkt
 ### Report Settings
 ##########################################################################################
 
-Report.nrofReports = 4
+Report.nrofReports = 5
 Report.warmup = 1
 Report.reportDir = reports/Reality
 
@@ -98,9 +100,11 @@ Report.report1 = MessageStatsReport
 Report.report2 = ContactTimesReport
 Report.report3 = PeriodicStatsReporter
 Report.report4 = CommunityDetectionReport
+Report.report5 = PeriodicCommunityReporter
 
 ##########################################################################################
 # REPORT SPECIFIC SETTINGS
 ##########################################################################################
 
 PeriodicStatsReporter.updateInterval = 1000
+PeriodicCommunityReporter.updateInterval = 2000
