@@ -1,9 +1,9 @@
 package routing;
 
 import core.*;
+import routing.community.Duration;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Decision Engine implementation for Spray And Wait algorithm.
@@ -42,6 +42,15 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 
 	/* Holds the contacts between this host and other hosts */
 	protected Map<DTNHost, Double> localEncounters;
+	/**
+	 * List of durations of contacts per other nodes with this host.
+	 */
+	protected Map<DTNHost, List<Duration>> connectionHistory;
+	/**
+	 * Start times of ongoing contacts with other nodes. Necessary to store and
+	 * handle multiple connections at the same time.
+	 */
+	protected Map<DTNHost, Double> ongoingStartTimes;
 
 	/**
 	 * Settings constructor.
@@ -61,6 +70,8 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 //		}
 
 		localEncounters = new HashMap<>();
+		this.connectionHistory = new HashMap<>();
+		this.ongoingStartTimes = new HashMap<>();
 	}
 
 	/**
@@ -71,7 +82,9 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 		this.isBinary = r.isBinary;
 //		this.transitivityTimerThreshold = r.transitivityTimerThreshold;
 
-		this.localEncounters = new HashMap<>();
+		this.localEncounters = new HashMap<>(r.localEncounters);
+		this.connectionHistory = new HashMap<>(r.connectionHistory);
+		this.ongoingStartTimes = new HashMap<>(r.ongoingStartTimes);
 	}
 
 	@Override
@@ -80,6 +93,21 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 
 	@Override
 	public void connectionDown(DTNHost thisHost, DTNHost peer) {
+		/* FOR INTER-CONTACT PURPOSES */
+
+		/* Get the last duration of the exchange between thisHost and peer */
+		final double endTime = SimClock.getTime();
+		final double startTime = ongoingStartTimes.getOrDefault(peer, 0.0);
+
+		/* Have we met that peer yet? */
+		List<Duration> durations;
+		if (connectionHistory.containsKey(peer)) {
+			durations = connectionHistory.get(peer);
+		} else {
+			durations = new LinkedList<>();
+			connectionHistory.put(peer, durations);
+		}
+		durations.add(Duration.from(startTime, endTime));
 	}
 
 	/**
@@ -208,24 +236,33 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 		/* FOCUS PHASE */
 
 		DTNHost destination = m.getTo();
-		//
+
 		assert otherHost != null : "Other host should not be null!";
 		SprayAndFocusDERouter peerRouter = getDecisionEngineRouter(otherHost);
 
-		// other host has never encountered the destination
-		if (!getDecisionEngineRouter(otherHost).localEncounters.containsKey(destination)) {
-			return false;
-		}
+		// USING AVERAGE INTERCONTACT TIME TO DETERMINE SENDING TO THE OTHER HOST
 
-		// this host have never encountered the destination, but the other host has
-		if (!this.localEncounters.containsKey(destination)) {
+		final double peerAvgInterConnectivity = calculateAverageInterconnectivity(peerRouter.connectionHistory.get(destination));
+		final double selfAvgInterConnectivity = calculateAverageInterconnectivity(peerRouter.connectionHistory.get(thisHost));
+
+		if (peerAvgInterConnectivity <= selfAvgInterConnectivity) {
 			return true;
 		}
 
-		// send message if the peer has more recent encounter than this host
-		if (peerRouter.localEncounters.get(destination) > this.localEncounters.get(destination)) {
-			return true;
-		}
+//		// other host has never encountered the destination
+//		if (!getDecisionEngineRouter(otherHost).localEncounters.containsKey(destination)) {
+//			return false;
+//		}
+//
+//		// this host have never encountered the destination, but the other host has
+//		if (!this.localEncounters.containsKey(destination)) {
+//			return true;
+//		}
+//
+//		// send message if the peer has more recent encounter than this host
+//		if (peerRouter.localEncounters.get(destination) > this.localEncounters.get(destination)) {
+//			return true;
+//		}
 
 		return false;
 	}
@@ -306,5 +343,32 @@ public class SprayAndFocusDERouter implements RoutingDecisionEngine {
 			return (SprayAndFocusDERouter) deRouting;
 		}
 		throw new IllegalStateException("This router only works with another SprayAndWaitDERouter routing");
+	}
+
+	/**
+	 * <b>Calculates the interconnectivity average of a duration:</b>
+	 * <p>A[start,end] ~ B[start,end] ~ C[start,end] ~ D[start,end] ~ E[start,end]</p>
+	 * Given that list of durations, we calculate <code>interconnectivity(A,B) = B.start - A.end</code>.
+	 *
+	 * @return the average of interconnectivity in the form of double.
+	 */
+	private double calculateAverageInterconnectivity(List<Duration> durations) {
+		double sum = 0.0;
+		if (durations == null) {
+			return sum;
+		}
+		Iterator<Duration> iterator = durations.iterator();
+		if (!iterator.hasNext()) {
+			return 0.0;
+		}
+		// start iterating by moving index to the first element
+		Duration nextDuration = iterator.next();
+		Duration prevDuration;
+		while (iterator.hasNext()) {
+			prevDuration = nextDuration;
+			nextDuration = iterator.next();
+			sum += nextDuration.end - prevDuration.start;
+		}
+		return sum / durations.size();
 	}
 }
