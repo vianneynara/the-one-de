@@ -10,6 +10,8 @@ import java.util.*;
 /**
  * Reports the Delivery Ratio, Overhead Ratio, Average Latency, and Total Forwards following time series.
  * Updated with interval metric of Total Contact.
+ *
+ * @author narwa
  */
 @SuppressWarnings("DuplicatedCode")
 public class PeriodicStatsReporter extends ContactTimesReport implements MessageListener {
