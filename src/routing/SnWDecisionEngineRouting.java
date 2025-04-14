@@ -9,7 +9,7 @@ public class SnWDecisionEngineRouting implements RoutingDecisionEngine { // Dekl
     /** Inisiasi Variable Final */
     public static final String numberOfCopies = "nrofCopies"; // Variabel final untuk jumlah salinan
     public static final String binaryMode = "binaryMode"; // Variabel final untuk mode biner
-    public static final String SprayAndWait_nm = "SnWDecisionEngine"; // Nama ruang nama untuk Spray and Wait
+    public static final String SprayAndWait_nm = "SnWDE"; // Nama ruang nama untuk Spray and Wait
     public static final String msg_count_property = SprayAndWait_nm + "." + "copies"; // Properti untuk jumlah pesan
 
     public int initalNumberOfCopies; // Jumlah awal salinan
