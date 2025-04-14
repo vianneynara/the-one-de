@@ -22,53 +22,45 @@ import routing.community.CommunityDetectionEngine;
  *
  * @author PJ Dillon, University of Pittsburgh
  */
-public class CommunityDetectionReport extends Report
-{
-	public CommunityDetectionReport()
-	{
+public class CommunityDetectionReport extends Report {
+
+	public CommunityDetectionReport() {
 		init();
 	}
 
 	@Override
-	public void done()
-	{
+	public void done() {
 		List<DTNHost> nodes = SimScenario.getInstance().getHosts();
-		List<Set<DTNHost>> communities = new LinkedList<Set<DTNHost>>();
+		List<Set<DTNHost>> communities = new LinkedList<>();
 
-		for(DTNHost h : nodes)
-		{
+		for (DTNHost h : nodes) {
 			MessageRouter r = h.getRouter();
-			if(!(r instanceof DecisionEngineRouter) )
+			if (!(r instanceof DecisionEngineRouter der))
 				continue;
-			RoutingDecisionEngine de = ((DecisionEngineRouter)r).getDecisionEngine();
-			if(!(de instanceof CommunityDetectionEngine))
+			RoutingDecisionEngine de = der.getDecisionEngine();
+			if (!(de instanceof CommunityDetectionEngine cde))
 				continue;
-			CommunityDetectionEngine cd = (CommunityDetectionEngine)de;
 
 			boolean alreadyHaveCommunity = false;
-			Set<DTNHost> nodeComm = cd.getLocalCommunity();
+			Set<DTNHost> nodeComm = cde.getLocalCommunity();
 
 			// Test to see if another node already reported this community
-			for(Set<DTNHost> c : communities)
-			{
-				if(c.containsAll(nodeComm) && nodeComm.containsAll(c))
-				{
+			for (Set<DTNHost> c : communities) {
+				if (c.containsAll(nodeComm) && nodeComm.containsAll(c)) {
 					alreadyHaveCommunity = true;
+					break;
 				}
 			}
 
-			if(!alreadyHaveCommunity && nodeComm.size() > 0)
-			{
+			if (!alreadyHaveCommunity && !nodeComm.isEmpty()) {
 				communities.add(nodeComm);
 			}
 		}
 
 		// print each community and its size out to the file
-		for(Set<DTNHost> c : communities)
+		for (Set<DTNHost> c : communities)
 			write("" + c.size() + ' ' + c);
 
 		super.done();
 	}
-
-
 }
