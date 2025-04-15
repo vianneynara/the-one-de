@@ -26,4 +26,9 @@ public class Duration
 	public static Duration from(double start, double end) {
 		return new Duration(start, end);
 	}
+
+	@Override
+	public String toString() {
+		return "(" + start + ", " + end + ")";
+	}
 }
