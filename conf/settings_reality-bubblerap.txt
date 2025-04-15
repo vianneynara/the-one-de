@@ -43,6 +43,7 @@ DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDete
 DecisionEngineRouter.K = 5
 DecisionEngineRouter.familiarThreshold = 700
 DecisionEngineRouter.centralityAlg = routing.community.CWindowCentrality
+DecisionEngineRouter.timeWindow = 86400
 
 # "Bluetooth" interface for all nodes
 btInterface.type = SimpleBroadcastInterface
