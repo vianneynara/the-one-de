@@ -4,7 +4,6 @@ import core.*;
 import routing.DecisionEngineRouter;
 import routing.community.CentralityCount;
 import routing.community.DistributedBubbleRap;
-import routing.community.Duration;
 
 import java.util.*;
 
@@ -57,7 +56,7 @@ public class PeriodicCommunityUniquesReporter extends Report {
 //			updateReportPerInterval();
 //		}
 //	}
-
+//
 //	private void updateHosts(List<DTNHost> hosts) {
 //		for (DTNHost host : hosts) {
 //			if (!(host.getRouter() instanceof DecisionEngineRouter der)) {
@@ -69,7 +68,7 @@ public class PeriodicCommunityUniquesReporter extends Report {
 //			dbr.update(host);
 //		}
 //	}
-
+//
 //	private void updateReportPerInterval() {
 //		final List<DTNHost> hosts = SimScenario.getInstance().getHosts();
 //
@@ -114,13 +113,19 @@ public class PeriodicCommunityUniquesReporter extends Report {
 			if (!(host.getRouter() instanceof DecisionEngineRouter der)) {
 				continue;
 			}
-			if (!(der.getDecisionEngine() instanceof CentralityCount cc)) {
+//			if (!(der.getDecisionEngine() instanceof CentralityCount cc)) {
+//				continue;
+//			}
+			if (!(der.getDecisionEngine() instanceof DistributedBubbleRap dbr)) {
 				continue;
 			}
 			sb.append(host.getAddress()).append(SEPARATOR).append("global").append(SEPARATOR);
-			cc.getAllEncounters().forEach((encounters) -> {
+			dbr.getPeriodicEncounters().forEach((encounters) -> {
 				sb.append(encounters.size()).append(SEPARATOR);
 			});
+//			dbr.getGlobalEncounters().forEach((encounters) -> {
+//				sb.append(encounters.size()).append(SEPARATOR);
+//			});
 			sb.append("\n");
 		}
 
