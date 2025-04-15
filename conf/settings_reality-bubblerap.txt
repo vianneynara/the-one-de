@@ -101,7 +101,8 @@ Report.report1 = MessageStatsReport
 Report.report2 = ContactTimesReport
 Report.report3 = PeriodicStatsReporter
 Report.report4 = CommunityDetectionReport
-Report.report5 = PeriodicCommunityReporter
+# Report.report5 = PeriodicCommunityReporter
+Report.report5 = PeriodicCommunityUniquesReporter
 
 ##########################################################################################
 # REPORT SPECIFIC SETTINGS
