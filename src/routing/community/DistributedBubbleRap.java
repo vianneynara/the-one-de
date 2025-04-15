@@ -271,21 +271,21 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 
 	@Override
 	public void update(DTNHost thisHost) {
-//		final double currTime = SimClock.getTime();
-//		if (currTime - lastRecord >= interval) {
-//			// adds new set for the next window
-//			periodicEncounters.add(new HashSet<>());
-//			for (var current : connHistory.entrySet()) {
-//				final DTNHost host = current.getKey();
-//				final List<Duration> durations = current.getValue();
-//
-//				if (durations.getFirst().start >= lastRecord && durations.getLast().end <= currTime) {
-//					periodicEncounters.getLast().add(host);
-//				}
-//			}
-//
-//			lastRecord = currTime;
-//		}
+		final double currTime = SimClock.getTime();
+		if (currTime - lastRecord >= interval) {
+			// adds new set for the next window
+			periodicEncounters.add(new HashSet<>());
+			for (var current : connHistory.entrySet()) {
+				final DTNHost host = current.getKey();
+				final List<Duration> durations = current.getValue();
+
+				if (durations.getFirst().start >= lastRecord && durations.getLast().end <= currTime) {
+					periodicEncounters.getLast().add(host);
+				}
+			}
+
+			lastRecord = currTime;
+		}
 	}
 
 	public Map<DTNHost, List<Duration>> getConnHistory() {
