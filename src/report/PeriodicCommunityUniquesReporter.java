@@ -105,27 +105,21 @@ public class PeriodicCommunityUniquesReporter extends Report {
 	public void done() {
 		final List<DTNHost> hosts = SimScenario.getInstance().getHosts();
 		StringBuilder sb = new StringBuilder();
+
 		// adding header
 		sb.append("Node-ID").append(SEPARATOR).append("Popularity").append(";\n");
 
-//		write("SIZE OF recordedUniqueEncounters: " + recordedUniqueEncounters.size());
 		for (var host : hosts) {
 			if (!(host.getRouter() instanceof DecisionEngineRouter der)) {
 				continue;
 			}
-//			if (!(der.getDecisionEngine() instanceof CentralityCount cc)) {
-//				continue;
-//			}
 			if (!(der.getDecisionEngine() instanceof DistributedBubbleRap dbr)) {
 				continue;
 			}
 			sb.append(host.getAddress()).append(SEPARATOR).append("global").append(SEPARATOR);
-			dbr.getPeriodicEncounters().forEach((encounters) -> {
-				sb.append(encounters.size()).append(SEPARATOR);
-			});
-//			dbr.getGlobalEncounters().forEach((encounters) -> {
-//				sb.append(encounters.size()).append(SEPARATOR);
-//			});
+
+//			dbr.getPeriodicEncounters().forEach((encounters) -> sb.append(encounters.size()).append(SEPARATOR));
+			dbr.getGlobalEncounters().forEach((encounters) -> sb.append(encounters.size()).append(SEPARATOR));
 			sb.append("\n");
 		}
 
