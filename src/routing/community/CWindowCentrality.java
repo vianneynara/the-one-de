@@ -278,6 +278,12 @@ public class CWindowCentrality implements Centrality, CentralityCount {
 		return new CWindowCentrality(this);
 	}
 
+	/**
+	 * This iterates each period and checks if the encounter duration overlaps with the iterated period.
+	 * The logic here is to get the periods/window given the simulation time / defined time window.
+	 *
+	 * @author narwa
+	 * */
 	@Override
 	public List<Set<DTNHost>> getGlobalEncounters(Map<DTNHost, List<Duration>> connHistory) {
 		final List<Set<DTNHost>> periodicEncounters = new ArrayList<>();
@@ -285,24 +291,36 @@ public class CWindowCentrality implements Centrality, CentralityCount {
 		final int periods = (int) (currTime / CENTRALITY_TIME_WINDOW);
 
 		for (int i = 0; i < periods; i++) {
-			System.out.println("\\\\\\ ITERATING THROUGH PERIOD : " + i + "\\\\\\");
+			System.out.println("\\\\\\ ITERATING THROUGH PERIOD : " + i + " \\\\\\");
 			final Set<DTNHost> currentEncounters = new HashSet<>();
+
+			// calculate the current period's time's lower and upper bounds
 			final double lowerBound = i * CENTRALITY_TIME_WINDOW;
 			final double upperBound = (i + 1) * CENTRALITY_TIME_WINDOW;
 
 			for (Map.Entry<DTNHost, List<Duration>> entry : connHistory.entrySet()) {
 				final DTNHost h = entry.getKey();
-//				System.out.println("Checking host: " + h);
+				if (h.getAddress() == 0) System.out.printf("[HOST 0][i=%d][]%n", i);
+
 				for (Duration d : entry.getValue()) {
-					// Check if the encounter overlaps with the current period in any way
+					// check if the encounter duration overlaps with the current period in any way
 					if ((d.start >= lowerBound && d.end <= upperBound)) {
-//						System.out.println("Adding " + h + " to currentEncounters");
+						System.out.printf("[%d] Adding %s to currentEncounters%n", i, h);
 						currentEncounters.add(h);
-						// No break here; we want to check all durations as they might also fall into the same period
+					}
+
+					// stop iterating
+					if (d.start > upperBound) {
+						break;
 					}
 				}
 			}
 			periodicEncounters.add(currentEncounters);
+
+			if (i == 2) {
+				System.out.println("periodicEncounters: " + periodicEncounters);
+				break;
+			}
 		}
 
 		return periodicEncounters;
