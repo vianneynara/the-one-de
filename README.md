@@ -6,6 +6,11 @@ The ONE is a Opportunistic Network Environment simulator which provides a powerf
 
 ### Compiling
 
+[Windows] Just run 
+```
+.\compile.bat
+```
+
 You can compile ONE from the source code using the included `compile.bat` script. That should work both in Windows and Unix/Linux environment with Java 6 JDK or later.
 
 If you want to use Eclipse for compiling the ONE, since version 1.1.0 you need to include some jar libraries in the project's build path. The libraries are located in the `lib` folder. To include them in Eclipse:
@@ -26,6 +31,12 @@ ONE can be started using the included `one.bat` (for Windows) or `one.sh` (for L
 **Synopsis:**
 ```
 ./one.sh [-b runcount] [conf-files]
+```
+
+Windows:
+```
+.\one.bat [-b runcount] [conf-files]
+.\one.bat -b 1 .\conf\settings_reality-bubblerap.txt
 ```
 
 **Options:**
