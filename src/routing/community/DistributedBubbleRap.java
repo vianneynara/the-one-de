@@ -70,6 +70,9 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 	/* UTS */
 	private double lastRecord;
 	private int interval;
+	/**
+	 * Stores periodical unique encounters of the host.
+	 * */
 	protected List<Set<DTNHost>> periodicEncounters;
 
 	protected CommunityDetection community;
