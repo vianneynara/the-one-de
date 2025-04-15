@@ -160,7 +160,9 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 
 		startTimestamps.remove(peer);
 
-		/* UTS */
+		/**
+		 * Critical part for the mid term exam, processes this current peer to the latest encounter.
+		 * */
 		processRecents(peer);
 	}
 
@@ -250,7 +252,8 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 	}
 
 	/**
-	 * PELER
+	 * Derived from {@link CentralityCount} implemented in this class's {@link #centrality} {@link Centrality}.
+	 * Used to, hopefully be able to retrieve a List of encounter windows based on the passed {@link #connHistory}.
 	 * */
 	public List<Set<DTNHost>> getGlobalEncounters() {
 		// explicit casting agar yang algoritma lain tidak rusak
@@ -271,14 +274,23 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 
 	@Override
 	public void update(DTNHost thisHost) {
+		/*
+		* This is my first idea of supporting PeriodicCommunityUniquesReporter.
+		* This is being called every clock (not quite sure though) for the host.
+		*
+		* This calculation leverages SimClock to check whether the current call is within the reporting window.
+		* If it is, add the hosts to the most recent periodicEncounters set.
+		* Not the best way of doing it, but it works.
+		* */
 		final double currTime = SimClock.getTime();
 		if (currTime - lastRecord >= interval) {
-			// adds new set for the next window
+			// adds new set for the next period window
 			periodicEncounters.add(new HashSet<>());
 			for (var current : connHistory.entrySet()) {
 				final DTNHost host = current.getKey();
 				final List<Duration> durations = current.getValue();
 
+				// checks if the host's duration is within the window
 				if (durations.getFirst().start >= lastRecord && durations.getLast().end <= currTime) {
 					periodicEncounters.getLast().add(host);
 				}
@@ -296,6 +308,10 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 		return periodicEncounters;
 	}
 
+	/**
+	 * Puts the host into the most recent periodicEncounters set.
+	 * For {@link report.PeriodicCommunityUniquesReporter} purpose.
+	 * */
 	private void processRecents(DTNHost host) {
 //		final int currTime = SimClock.getIntTime();
 //		if (currTime - lastRecord >= interval) {
