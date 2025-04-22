@@ -283,47 +283,34 @@ public class CWindowCentrality implements Centrality, CentralityCount {
 	 * The logic here is to get the periods/window given the simulation time / defined time window.
 	 *
 	 * @author narwa
-	 * */
+	 */
 	@Override
 	public List<Set<DTNHost>> getGlobalEncounters(Map<DTNHost, List<Duration>> connHistory) {
 		final List<Set<DTNHost>> periodicEncounters = new ArrayList<>();
 		final double currTime = SimClock.getTime();
 		final int periods = (int) (currTime / CENTRALITY_TIME_WINDOW);
 
+		// initialize encounter windows with hashsets
 		for (int i = 0; i < periods; i++) {
-			System.out.println("\\\\\\ ITERATING THROUGH PERIOD : " + i + " \\\\\\");
-			final Set<DTNHost> currentEncounters = new HashSet<>();
+			periodicEncounters.add(new HashSet<>());
+		}
 
-			// calculate the current period's time's lower and upper bounds
-			final double lowerBound = i * CENTRALITY_TIME_WINDOW;
-			final double upperBound = (i + 1) * CENTRALITY_TIME_WINDOW;
+		// iterate through the connection history and fill it according to the periods
+		for (Map.Entry<DTNHost, List<Duration>> entry : connHistory.entrySet()) {
+			DTNHost h = entry.getKey();
+			for (Duration d : entry.getValue()) {
+				int timePassed = (int) (currTime - d.end);
 
-			for (Map.Entry<DTNHost, List<Duration>> entry : connHistory.entrySet()) {
-				final DTNHost h = entry.getKey();
-				if (h.getAddress() == 0) System.out.printf("[HOST 0][i=%d][]%n", i);
-
-				for (Duration d : entry.getValue()) {
-					// check if the encounter duration overlaps with the current period in any way
-					if ((d.start >= lowerBound && d.end <= upperBound)) {
-						System.out.printf("[%d] Adding %s to currentEncounters%n", i, h);
-						currentEncounters.add(h);
-					}
-
-					// stop iterating
-					if (d.start > upperBound) {
-						break;
-					}
+				// epoch is the period index in which the encounter happened
+				int epoch = timePassed / CENTRALITY_TIME_WINDOW;
+				if (epoch < 0 || epoch >= periods) {
+//					System.out.println("Encounter out of bounds: " + h + " at epoch " + epoch);
+					continue;
 				}
-			}
-			periodicEncounters.add(currentEncounters);
-
-			if (i == 2) {
-				System.out.println("periodicEncounters: " + periodicEncounters);
-				break;
+				periodicEncounters.get(epoch).add(h);
 			}
 		}
 
 		return periodicEncounters;
 	}
-
 }

@@ -96,11 +96,11 @@ public class PeriodicCommunityUniquesReporter extends Report {
 //
 //			recordedUniqueEncounters.put(host, dbr.getPeriodicEncounters());
 //
-////			allHostEncounters.add(encounters);
-////			recordedUniqueEncounters.put(host, allHostEncounters);
+
+	/// /			allHostEncounters.add(encounters);
+	/// /			recordedUniqueEncounters.put(host, allHostEncounters);
 //		}
 //	}
-
 	@Override
 	public void done() {
 		final List<DTNHost> hosts = SimScenario.getInstance().getHosts();
@@ -119,8 +119,14 @@ public class PeriodicCommunityUniquesReporter extends Report {
 			sb.append(host.getAddress()).append(SEPARATOR).append("global").append(SEPARATOR);
 
 //			dbr.getPeriodicEncounters().forEach((encounters) -> sb.append(encounters.size()).append(SEPARATOR));
+//			if (host.getAddress() != 0) {
 			dbr.getGlobalEncounters().forEach((encounters) -> sb.append(encounters.size()).append(SEPARATOR));
+//			} else {
+//				dbr.getGlobalEncounters().forEach((encounters) -> sb.append(encounters).append(SEPARATOR));
+//			}
 			sb.append("\n");
+
+//			System.out.println("Host " + host.getAddress() + " has " + dbr.getConnHistory().size() + " connections");
 		}
 
 		write(sb.toString());
