@@ -285,22 +285,22 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 		* If it is, add the hosts to the most recent periodicEncounters set.
 		* Not the best way of doing it, but it works.
 		* */
-		final double currTime = SimClock.getTime();
-		if (currTime - lastRecord >= interval) {
-			// adds new set for the next period window
-			periodicEncounters.add(new HashSet<>());
-			for (var current : connHistory.entrySet()) {
-				final DTNHost host = current.getKey();
-				final List<Duration> durations = current.getValue();
-
-				// checks if the host's duration is within the window
-				if (durations.getFirst().start >= lastRecord && durations.getLast().end <= currTime) {
-					periodicEncounters.getLast().add(host);
-				}
-			}
-
-			lastRecord = currTime;
-		}
+//		final double currTime = SimClock.getTime();
+//		if (currTime - lastRecord >= interval) {
+//			// adds new set for the next period window
+//			periodicEncounters.add(new HashSet<>());
+//			for (var current : connHistory.entrySet()) {
+//				final DTNHost host = current.getKey();
+//				final List<Duration> durations = current.getValue();
+//
+//				// checks if the host's duration is within the window
+//				if (durations.getFirst().start >= lastRecord && durations.getLast().end <= currTime) {
+//					periodicEncounters.getLast().add(host);
+//				}
+//			}
+//
+//			lastRecord = currTime;
+//		}
 	}
 
 	public Map<DTNHost, List<Duration>> getConnHistory() {
@@ -324,12 +324,12 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 //		}
 
 		// checks whether this is not the first time of adding to windows
-		if (!periodicEncounters.isEmpty()) {
-			if (host != null) {
-				periodicEncounters.get(periodicEncounters.size() - 1).add(host);
-			}
-		} else {
-			periodicEncounters.add(new HashSet<>());
-		}
+//		if (!periodicEncounters.isEmpty()) {
+//			if (host != null) {
+//				periodicEncounters.get(periodicEncounters.size() - 1).add(host);
+//			}
+//		} else {
+//			periodicEncounters.add(new HashSet<>());
+//		}
 	}
 }
