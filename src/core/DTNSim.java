@@ -6,6 +6,7 @@ package core;
 import gui.DTNSimGUI;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class DTNSim {
 				new DTNSimTextUI().start();
 			}
 			double duration = (System.currentTimeMillis() - startTime)/1000.0;
-			print("---\nAll done in " + String.format("%.2f", duration) + "s");
+			print("---\nAll done in " + String.format("%.2f", duration) + "s, at " + LocalDateTime.now());
 		}
 		else {
 			Settings.setRunIndex(guiIndex);
