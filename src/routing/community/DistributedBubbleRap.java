@@ -54,7 +54,7 @@ import routing.RoutingDecisionEngine;
  *
  * @author PJ Dillon, University of Pittsburgh
  */
-public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDetectionEngine {
+public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDetectionEngine, WindowDetectionEngine {
 	/**
 	 * Community Detection Algorithm to employ -setting id {@value}
 	 */
@@ -258,9 +258,15 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 	 * Derived from {@link CentralityCount} implemented in this class's {@link #centrality} {@link Centrality}.
 	 * Used to, hopefully be able to retrieve a List of encounter windows based on the passed {@link #connHistory}.
 	 * */
+	@Override
 	public List<Set<DTNHost>> getGlobalEncounters() {
 		// explicit casting agar yang algoritma lain tidak rusak
 		return ((CentralityCount)this.centrality).getGlobalEncounters(connHistory);
+	}
+
+	@Override
+	public List<Integer> getGlobalEncountersCounts() {
+		return ((CentralityCount)this.centrality).getGlobalEncountersCounts(connHistory);
 	}
 
 	private DistributedBubbleRap getOtherDecisionEngine(DTNHost h) {
