@@ -303,14 +303,6 @@ public class DistributedBubbleRap implements RoutingDecisionEngine, CommunityDet
 //		}
 	}
 
-	public Map<DTNHost, List<Duration>> getConnHistory() {
-		return connHistory;
-	}
-
-	public List<Set<DTNHost>> getPeriodicEncounters() {
-		return periodicEncounters;
-	}
-
 	/**
 	 * Puts the host into the most recent periodicEncounters set.
 	 * For {@link report.PeriodicCommunityUniquesReporter} purpose.
