@@ -19,4 +19,12 @@ public interface CentralityCount {
 	 * @return List of unique encounters.
 	 * */
 	List<Set<DTNHost>> getGlobalEncounters(Map<DTNHost, List<Duration>> connHistory);
+
+	/**
+	 * Returns a sequential list of the size of each encounter period/window given a connection history of a host.
+	 *
+	 * @param connHistory host's connection history.
+	 * @return List of unique encounters sizes.
+	 * */
+	List<Integer> getGlobalEncountersCounts(Map<DTNHost, List<Duration>> connHistory);
 }
