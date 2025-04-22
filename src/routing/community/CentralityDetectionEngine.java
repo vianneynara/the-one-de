@@ -11,9 +11,6 @@
 package routing.community;
 
 
-
-
-
 public interface CentralityDetectionEngine {
 
 	//returns the global centrality of a node
@@ -21,9 +18,5 @@ public interface CentralityDetectionEngine {
 	
 	//returns the local centrality of a node
 	public double getLocalDegreeCentrality ();	
-	
-	//temporary inserted
-	//return the array of the global centrality of a node
-	//public int [] getArrayCentrality ();
-	
+
 }
