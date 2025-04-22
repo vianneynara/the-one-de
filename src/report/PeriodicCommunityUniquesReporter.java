@@ -1,11 +1,15 @@
 package report;
 
-import core.*;
+import core.DTNHost;
+import core.Settings;
+import core.SimScenario;
 import routing.DecisionEngineRouter;
-import routing.community.CentralityCount;
-import routing.community.DistributedBubbleRap;
+import routing.community.WindowDetectionEngine;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This reports the number of communities within the algorithm per defined interval.
@@ -113,20 +117,14 @@ public class PeriodicCommunityUniquesReporter extends Report {
 			if (!(host.getRouter() instanceof DecisionEngineRouter der)) {
 				continue;
 			}
-			if (!(der.getDecisionEngine() instanceof DistributedBubbleRap dbr)) {
-				continue;
+			if (der.getDecisionEngine() instanceof WindowDetectionEngine wde) {
+				sb.append(host.getAddress()).append(SEPARATOR).append("global").append(SEPARATOR);
+
+				wde.getGlobalEncountersCounts().forEach((size) -> {
+					sb.append(size).append(SEPARATOR);
+				});
+				sb.append("\n");
 			}
-			sb.append(host.getAddress()).append(SEPARATOR).append("global").append(SEPARATOR);
-
-//			dbr.getPeriodicEncounters().forEach((encounters) -> sb.append(encounters.size()).append(SEPARATOR));
-//			if (host.getAddress() != 0) {
-			dbr.getGlobalEncounters().forEach((encounters) -> sb.append(encounters.size()).append(SEPARATOR));
-//			} else {
-//				dbr.getGlobalEncounters().forEach((encounters) -> sb.append(encounters).append(SEPARATOR));
-//			}
-			sb.append("\n");
-
-//			System.out.println("Host " + host.getAddress() + " has " + dbr.getConnHistory().size() + " connections");
 		}
 
 		write(sb.toString());
