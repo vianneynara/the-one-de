@@ -313,4 +313,23 @@ public class CWindowCentrality implements Centrality, CentralityCount {
 
 		return periodicEncounters;
 	}
+
+	/**
+	 * Iterates results from {@link #getGlobalEncounters(Map)} and retrieves the sizes then return them as a
+	 * {@link List}.
+	 *
+	 * @author narwa
+	 * */
+	@Override
+	public List<Integer> getGlobalEncountersCounts(Map<DTNHost, List<Duration>> connHistory) {
+		final List<Set<DTNHost>> periodicEncounters = getGlobalEncounters(connHistory);
+		final ArrayList<Integer> periodicEncountersCounts = new ArrayList<>();
+
+		// iterate through all the periods and enter the sizes to periodicEncountersCounts
+		for (Set<DTNHost> windowEncounters : periodicEncounters) {
+			periodicEncountersCounts.add(windowEncounters.size());
+		}
+
+		return periodicEncountersCounts;
+	}
 }
