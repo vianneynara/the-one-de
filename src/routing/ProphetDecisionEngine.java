@@ -12,187 +12,226 @@ import routing.RoutingDecisionEngine;
 
 public class ProphetDecisionEngine implements RoutingDecisionEngine {
 
-    protected final static String BETA_SETTING = "beta";
-    protected final static String P_INIT_SETTING = "initial_p";
-    protected final static String SECONDS_IN_UNIT_S = "secondsInTimeUnit";
+	protected final static String BETA_SETTING = "beta";
+	protected final static String P_INIT_SETTING = "initial_p";
+	protected final static String SECONDS_IN_UNIT_S = "secondsInTimeUnit";
 
-    protected static final double DEFAULT_P_INIT = 0.75;
-    protected static final double GAMMA = 0.92;
-    protected static final double DEFAULT_BETA = 0.45;
-    protected static final int DEFAULT_UNIT = 30;
+	protected static final double DEFAULT_P_INIT = 0.75;
+	protected static final double GAMMA = 0.92;
+	protected static final double DEFAULT_BETA = 0.45;
+	protected static final int DEFAULT_UNIT = 30;
 
-    protected double beta;
-    protected double pinit;
-    protected double lastAgeUpdate;
-    protected int secondsInTimeUnit;
-    
-    private Set<Message> msgStamp;
-    private Map<DTNHost, Integer> relayed;
-    private DTNHost meHost;
+	protected double beta;
+	protected double pinit;
+	protected double lastAgeUpdate;
+	protected int secondsInTimeUnit;
 
-    /**
-     * delivery predictabilities
-     */
-    private Map<DTNHost, Double> preds;
+	private Set<Message> msgStamp;
+	private Map<DTNHost, Integer> relayed;
+	private DTNHost meHost;
 
-    public ProphetDecisionEngine(Settings s) {
-        if (s.contains(BETA_SETTING)) {
-            beta = s.getDouble(BETA_SETTING);
-        } else {
-            beta = DEFAULT_BETA;
-        }
+	/**
+	 * delivery predictabilities
+	 */
+	private Map<DTNHost, Double> preds;
 
-        if (s.contains(P_INIT_SETTING)) {
-            pinit = s.getDouble(P_INIT_SETTING);
-        } else {
-            pinit = DEFAULT_P_INIT;
-        }
+	public ProphetDecisionEngine(Settings s) {
+		if (s.contains(BETA_SETTING)) {
+			beta = s.getDouble(BETA_SETTING);
+		} else {
+			beta = DEFAULT_BETA;
+		}
 
-        if (s.contains(SECONDS_IN_UNIT_S)) {
-            secondsInTimeUnit = s.getInt(SECONDS_IN_UNIT_S);
-        } else {
-            secondsInTimeUnit = DEFAULT_UNIT;
-        }
+		if (s.contains(P_INIT_SETTING)) {
+			pinit = s.getDouble(P_INIT_SETTING);
+		} else {
+			pinit = DEFAULT_P_INIT;
+		}
 
-        preds = new HashMap<DTNHost, Double>();
-        this.lastAgeUpdate = 0.0;
-    }
+		if (s.contains(SECONDS_IN_UNIT_S)) {
+			secondsInTimeUnit = s.getInt(SECONDS_IN_UNIT_S);
+		} else {
+			secondsInTimeUnit = DEFAULT_UNIT;
+		}
 
-    public ProphetDecisionEngine(ProphetDecisionEngine de) {
-        beta = de.beta;
-        pinit = de.pinit;
-        secondsInTimeUnit = de.secondsInTimeUnit;
-        meHost = de.meHost;
-        msgStamp = new HashSet<>();
-        relayed = new HashMap<>();
-        preds = new HashMap<DTNHost, Double>();
-        this.lastAgeUpdate = de.lastAgeUpdate;
-    }
+		preds = new HashMap<DTNHost, Double>();
+		this.lastAgeUpdate = 0.0;
+	}
 
-    public RoutingDecisionEngine replicate() {
-        return new ProphetDecisionEngine(this);
-    }
+	public ProphetDecisionEngine(ProphetDecisionEngine de) {
+		beta = de.beta;
+		pinit = de.pinit;
+		secondsInTimeUnit = de.secondsInTimeUnit;
+		meHost = de.meHost;
+		msgStamp = new HashSet<>();
+		relayed = new HashMap<>();
+		preds = new HashMap<DTNHost, Double>();
+		this.lastAgeUpdate = de.lastAgeUpdate;
+	}
 
-    public void connectionUp(DTNHost thisHost, DTNHost peer) {
-    }
+	public RoutingDecisionEngine replicate() {
+		return new ProphetDecisionEngine(this);
+	}
 
-    public void connectionDown(DTNHost thisHost, DTNHost peer) {
-    }
+	public void connectionUp(DTNHost thisHost, DTNHost peer) {
+	}
 
-    public void doExchangeForNewConnection(Connection con, DTNHost peer) {
-        DTNHost myHost = con.getOtherNode(peer);
-        ProphetDecisionEngine de = getOtherProphetDecisionEngine(peer);
-        Set<DTNHost> hostSet = new HashSet<DTNHost>(this.preds.size()
-                + de.preds.size());
-        hostSet.addAll(this.preds.keySet());
-        hostSet.addAll(de.preds.keySet());
+	public void connectionDown(DTNHost thisHost, DTNHost peer) {
+	}
 
-        this.agePreds();
-        de.agePreds();
+	public void doExchangeForNewConnection(Connection con, DTNHost peer) {
+		DTNHost myHost = con.getOtherNode(peer);
+		ProphetDecisionEngine de = getOtherProphetDecisionEngine(peer);
+		Set<DTNHost> hostSet = new HashSet<DTNHost>(this.preds.size()
+			+ de.preds.size());
+		hostSet.addAll(this.preds.keySet());
+		hostSet.addAll(de.preds.keySet());
 
-        // Update preds for this connection
-        double myOldValue = this.getPredFor(peer),
-                peerOldValue = de.getPredFor(myHost),
-                myPforHost = myOldValue + (1 - myOldValue) * pinit,
-                peerPforMe = peerOldValue + (1 - peerOldValue) * de.pinit;
-        preds.put(peer, myPforHost);
-        de.preds.put(myHost, peerPforMe);
+		this.agePreds();
+		de.agePreds();
 
-        // Update transistivities
-        for (DTNHost h : hostSet) {
-            myOldValue = 0.0;
-            peerOldValue = 0.0;
+		// Update preds for this connection
+		double myOldValue = this.getPredFor(peer),
+			peerOldValue = de.getPredFor(myHost),
+			myPforHost = myOldValue + (1 - myOldValue) * pinit,
+			peerPforMe = peerOldValue + (1 - peerOldValue) * de.pinit;
+		preds.put(peer, myPforHost);
+		de.preds.put(myHost, peerPforMe);
 
-            if (preds.containsKey(h)) {
-                myOldValue = preds.get(h);
-            }
-            if (de.preds.containsKey(h)) {
-                peerOldValue = de.preds.get(h);
-            }
+		// Update transistivities
+		for (DTNHost h : hostSet) {
+			myOldValue = 0.0;
+			peerOldValue = 0.0;
 
-            if (h != myHost) {
-                preds.put(h, myOldValue + (1 - myOldValue) * myPforHost * peerOldValue * beta);
-            }
-            if (h != peer) {
-                de.preds.put(h, peerOldValue + (1 - peerOldValue) * peerPforMe * myOldValue * beta);
-            }
-        }
-    }
+			if (preds.containsKey(h)) {
+				myOldValue = preds.get(h);
+			}
+			if (de.preds.containsKey(h)) {
+				peerOldValue = de.preds.get(h);
+			}
 
-    public boolean newMessage(Message m) {
-        return true;
-    }
+			if (h != myHost) {
+				preds.put(h, myOldValue + (1 - myOldValue) * myPforHost * peerOldValue * beta);
+			}
+			if (h != peer) {
+				de.preds.put(h, peerOldValue + (1 - peerOldValue) * peerPforMe * myOldValue * beta);
+			}
+		}
+	}
 
-    public boolean isFinalDest(Message m, DTNHost aHost) {
-        return m.getTo() == aHost;
-    }
+	public boolean newMessage(Message m) {
+		return true;
+	}
 
-    public boolean shouldSaveReceivedMessage(Message m, DTNHost thisHost) {
-        msgStamp.add(m);
-        meHost = thisHost;
-        return m.getTo() != thisHost;
-    }
+	public boolean isFinalDest(Message m, DTNHost aHost) {
+		return m.getTo() == aHost;
+	}
 
-    public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost) {
-        if (m.getTo() == otherHost) {
-            return true;
-        }
+	public boolean shouldSaveReceivedMessage(Message m, DTNHost thisHost) {
+		msgStamp.add(m);
+		meHost = thisHost;
+		return m.getTo() != thisHost;
+	}
 
-        ProphetDecisionEngine de = getOtherProphetDecisionEngine(otherHost);
-        if (msgStamp.contains(m)) {
-            relayed.put(meHost, !relayed.containsKey(meHost)? 1 : relayed.get(meHost) + 1);
-        }
-        return de.getPredFor(m.getTo()) > this.getPredFor(m.getTo());
-    }
+	public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost) {
+		return useDefaultAlgorithm(m, otherHost, thisHost);
+	}
 
-    public boolean shouldDeleteSentMessage(Message m, DTNHost otherHost) {
-        return false;
-    }
+	private boolean useDefaultAlgorithm(Message m, DTNHost otherHost, DTNHost thisHost) {
+		if (m.getTo() == otherHost) {
+			return true;
+		}
 
-    public boolean shouldDeleteOldMessage(Message m, DTNHost hostReportingOld) {
-        return m.getTo() == hostReportingOld;
-    }
+		ProphetDecisionEngine de = getOtherProphetDecisionEngine(otherHost);
+		if (msgStamp.contains(m)) {
+			relayed.put(meHost, !relayed.containsKey(meHost) ? 1 : relayed.get(meHost) + 1);
+		}
+		return de.getPredFor(m.getTo()) > this.getPredFor(m.getTo());
+	}
 
-    private ProphetDecisionEngine getOtherProphetDecisionEngine(DTNHost host) {
-        MessageRouter otherRouter = host.getRouter();
-        assert otherRouter instanceof DecisionEngineRouter : "This router only works "
-                + " with other routers of same type";
 
-        return (ProphetDecisionEngine) ((DecisionEngineRouter) otherRouter).getDecisionEngine();
-    }
+	/**
+	 * Proposed algorithm on An Efficient Routing Protocol Using the History of
+	 * Delivery Predictability in Opportunistic Networks (2018) by Eun Hak Lee, et al.
+	 *
+	 * @implNote This is just the pseudocode, it might not be suitable for DE.
+	 * @author narwa
+	 */
+	@Deprecated
+	private boolean proposedAlgorithm(Message m, DTNHost otherHost, DTNHost thisHost) {
+		if (m.getTo() == otherHost) {
+			return true;
+		}
+		ProphetDecisionEngine peerDe = getOtherProphetDecisionEngine(otherHost);
+		if (msgStamp.contains(m)) {
+			relayed.put(meHost, !relayed.containsKey(meHost) ? 1 : relayed.get(meHost) + 1);
+		}
+		final double peerPred = peerDe.getPredFor(m.getTo());
+		final double selfPred = this.getPredFor(m.getTo());
+		final double peerPrevPred = peerDe.preds.getOrDefault(m.getTo(), 0.0);
+		final double selfPrevPred = preds.getOrDefault(m.getTo(), 0.0);
 
-    private void agePreds() {
-        double timeDiff = (SimClock.getTime() - this.lastAgeUpdate)
-                / secondsInTimeUnit;
+		if (peerPred > selfPred && !preds.containsKey(m.getTo())) {
+			if (peerPred >= selfPrevPred) {
+				peerDe.preds.put(m.getTo(), peerPred);
+				return true;
+			}
+		} else {
+			// continue to the next messages within the buffer
+		}
 
-        if (timeDiff == 0) {
-            return;
-        }
+		return false;
+	}
 
-        double mult = Math.pow(GAMMA, timeDiff);
-        for (Map.Entry<DTNHost, Double> e : preds.entrySet()) {
-            e.setValue(e.getValue() * mult);
-        }
+	public boolean shouldDeleteSentMessage(Message m, DTNHost otherHost) {
+		return false;
+	}
 
-        this.lastAgeUpdate = SimClock.getTime();
-    }
+	public boolean shouldDeleteOldMessage(Message m, DTNHost hostReportingOld) {
+		return m.getTo() == hostReportingOld;
+	}
 
-    /**
-     * Returns the current prediction (P) value for a host or 0 if entry for the
-     * host doesn't exist.
-     *
-     * @param host The host to look the P for
-     * @return the current P value
-     */
-    private double getPredFor(DTNHost host) {
-        agePreds(); // make sure preds are updated before getting
-        if (preds.containsKey(host)) {
-            return preds.get(host);
-        } else {
-            return 0;
-        }
-    }
+	private ProphetDecisionEngine getOtherProphetDecisionEngine(DTNHost host) {
+		MessageRouter otherRouter = host.getRouter();
+		assert otherRouter instanceof DecisionEngineRouter : "This router only works "
+			+ " with other routers of same type";
 
-    @Override
-    public void update(DTNHost thisHost) {}
+		return (ProphetDecisionEngine) ((DecisionEngineRouter) otherRouter).getDecisionEngine();
+	}
+
+	private void agePreds() {
+		double timeDiff = (SimClock.getTime() - this.lastAgeUpdate)
+			/ secondsInTimeUnit;
+
+		if (timeDiff == 0) {
+			return;
+		}
+
+		double mult = Math.pow(GAMMA, timeDiff);
+		for (Map.Entry<DTNHost, Double> e : preds.entrySet()) {
+			e.setValue(e.getValue() * mult);
+		}
+
+		this.lastAgeUpdate = SimClock.getTime();
+	}
+
+	/**
+	 * Returns the current prediction (P) value for a host or 0 if entry for the
+	 * host doesn't exist.
+	 *
+	 * @param host The host to look the P for
+	 * @return the current P value
+	 */
+	private double getPredFor(DTNHost host) {
+		agePreds(); // make sure preds are updated before getting
+		if (preds.containsKey(host)) {
+			return preds.get(host);
+		} else {
+			return 0;
+		}
+	}
+
+	@Override
+	public void update(DTNHost thisHost) {
+	}
 }
