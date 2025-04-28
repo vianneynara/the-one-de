@@ -219,7 +219,7 @@ public class ProphetRouter extends ActiveRouter {
 		if (exchangeDeliverableMessages() != null) {
 			return;
 		}
-		System.out.println(tryOtherMessages());
+//		System.out.println(tryOtherMessages());
 		tryOtherMessages();
 	}
 
