@@ -155,7 +155,7 @@ public class ProphetRouter extends ActiveRouter {
 	 *
 	 * @param host The B host who we just met
 	 */
-	private void updateTransitivePreds(DTNHost host) {
+	protected void updateTransitivePreds(DTNHost host) {
 		MessageRouter otherRouter = host.getRouter();
 		assert otherRouter instanceof ProphetRouter : "PRoPHET only works " +
 			" with other routers of same type";
@@ -219,7 +219,7 @@ public class ProphetRouter extends ActiveRouter {
 		if (exchangeDeliverableMessages() != null) {
 			return;
 		}
-		System.out.println(tryOtherMessages());
+//		System.out.println(tryOtherMessages());
 		tryOtherMessages();
 	}
 
@@ -229,7 +229,7 @@ public class ProphetRouter extends ActiveRouter {
 	 *
 	 * @return The return value of {@link #tryMessagesForConnected(List)}
 	 */
-	private Tuple<Message, Connection> tryOtherMessages() {
+	protected Tuple<Message, Connection> tryOtherMessages() {
 		List<Tuple<Message, Connection>> messages =
 			new ArrayList<Tuple<Message, Connection>>();
 
@@ -271,7 +271,7 @@ public class ProphetRouter extends ActiveRouter {
 	 * their delivery probability by the host on the other side of the
 	 * connection (GRTRMax)
 	 */
-	private class TupleComparator implements Comparator
+	class TupleComparator implements Comparator
 		<Tuple<Message, Connection>> {
 
 		public int compare(Tuple<Message, Connection> tuple1,
