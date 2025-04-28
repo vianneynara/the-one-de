@@ -58,20 +58,20 @@ public class ProphetRouter extends ActiveRouter {
 	/**
 	 * the value of nrof seconds in time unit -setting
 	 */
-	private int secondsInTimeUnit;
+	protected int secondsInTimeUnit;
 	/**
 	 * value of beta setting
 	 */
-	private double beta;
+	protected double beta;
 
 	/**
 	 * delivery predictabilities
 	 */
-	private Map<DTNHost, Double> preds;
+	protected Map<DTNHost, Double> preds;
 	/**
 	 * last delivery predictability update (sim)time
 	 */
-	private double lastAgeUpdate;
+	protected double lastAgeUpdate;
 
 	/**
 	 * Constructor. Creates a new message router based on the settings in
