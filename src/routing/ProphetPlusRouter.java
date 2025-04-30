@@ -98,7 +98,7 @@ public class ProphetPlusRouter extends ProphetRouter {
 	 * restrictive rule.
 	 *
 	 * @author narwa
-	 */
+	 * */
 	@Override
 	protected Tuple<Message, Connection> tryOtherMessages() {
 		Collection<Message> msgCollection = getMessageCollection();
@@ -133,30 +133,45 @@ public class ProphetPlusRouter extends ProphetRouter {
 				final double peerPred = peerRouter.getPredFor(m.getTo());
 				final double selfPred = getPredFor(m.getTo());
 
+				// storing the decision
+				boolean forwardTheMessage = false;
+
 				// if the peer has higher probability of deliverance than self
 				if (peerPred > selfPred) {
 					// self has previously met destination
 					if (preds.containsKey(m.getTo())) {
 						final double selfPrevPred = prevPreds.getOrDefault(m.getTo(), 0.0);
 						if (peerPred >= selfPrevPred) {
-							messages.add(new Tuple<>(m, con));
+							forwardTheMessage = true;
 						} else {
 							continue;
 						}
 					} else {
-						messages.add(new Tuple<>(m, con));
+						forwardTheMessage = true;
 					}
+				}
 
-					// Updates the previous probability of peer with the destination
+				if (forwardTheMessage) {
+					messages.add(new Tuple<>(m, con));
+					peerRouter.ageDeliveryPreds();
 					peerRouter.updatePrevDeliveryPredFor(m.getTo());
 				}
 			}
 		}
 
-
 		// sort the message-connection tuples
 		messages.sort(new TupleComparator());
 		return tryMessagesForConnected(messages);
+	}
+
+	/**
+	 * May or may not be used (currently unused and calls original class's)
+	 * */
+	@Override
+	public int receiveMessage(Message m, DTNHost from) {
+		int resultStatus = super.receiveMessage(m, from);
+//		updatePrevDeliveryPredFor(from, m.getTo());
+		return resultStatus;
 	}
 
 	@Override
