@@ -182,7 +182,7 @@ public class ProphetRouter extends ActiveRouter {
 	 *
 	 * @see #SECONDS_IN_UNIT_S
 	 */
-	private void ageDeliveryPreds() {
+	void ageDeliveryPreds() {
 		double timeDiff = (SimClock.getTime() - this.lastAgeUpdate) /
 			secondsInTimeUnit;
 
