@@ -84,8 +84,13 @@ public class ProphetPlusRouter extends ProphetRouter {
 	 * @param peer the key of contact probability to be modified.
 	 * */
 	protected void updatePrevDeliveryPredFor(DTNHost host, DTNHost peer) {
-		ProphetPlusRouter router = (ProphetPlusRouter) host.getRouter();
-		router.prevPreds.put(peer, router.getPredFor(peer));
+		ProphetPlusRouter hostRouter = (ProphetPlusRouter) host.getRouter();
+		hostRouter.prevPreds.put(peer, hostRouter.getPredFor(peer));
+	}
+
+	protected void updatePrevDeliveryPredFor(DTNHost peer) {
+		ProphetPlusRouter peerRouter = (ProphetPlusRouter) peer.getRouter();
+		this.prevPreds.put(peer, peerRouter.getPredFor(peer));
 	}
 
 	/**
@@ -118,7 +123,7 @@ public class ProphetPlusRouter extends ProphetRouter {
 					messages.add(new Tuple<>(m, con));
 
 					// Updates the previous probability of peer with the destination
-					this.updatePrevDeliveryPredFor(peer, m.getTo());
+					peerRouter.updatePrevDeliveryPredFor(m.getTo());
 					continue;
 				}
 
@@ -135,13 +140,15 @@ public class ProphetPlusRouter extends ProphetRouter {
 						final double selfPrevPred = prevPreds.getOrDefault(m.getTo(), 0.0);
 						if (peerPred >= selfPrevPred) {
 							messages.add(new Tuple<>(m, con));
+						} else {
+							continue;
 						}
 					} else {
 						messages.add(new Tuple<>(m, con));
 					}
 
 					// Updates the previous probability of peer with the destination
-					this.updatePrevDeliveryPredFor(peer, m.getTo());
+					peerRouter.updatePrevDeliveryPredFor(m.getTo());
 				}
 			}
 		}
