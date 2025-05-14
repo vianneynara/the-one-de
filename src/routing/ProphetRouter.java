@@ -322,4 +322,34 @@ public class ProphetRouter extends ActiveRouter {
 		return r;
 	}
 
+	/**
+	 * Drop policies used to decide which message should be dropped when the buffer is full.
+	 *
+	 * @see "Evaluation of Queueing Policies and Forwarding Strategies for Routing in
+	 * Intermittently Connected Networks" by Lindgren et al.
+	 * @author narwa
+	 */
+	enum DropPolicy {
+		FIFO(1),
+		MOFO(2),
+		MOPR(3),
+		SHLI(4),
+		LEPR(5);
+
+		final int order;
+
+		DropPolicy(int order) {
+			this.order = order;
+		}
+
+		public static DropPolicy of(int number) {
+			for (DropPolicy dp : DropPolicy.values()) {
+				if (dp.order == number) {
+					return dp;
+				}
+			}
+
+			throw new IllegalArgumentException("Unknown drop policy: " + number);
+		}
+	}
 }
