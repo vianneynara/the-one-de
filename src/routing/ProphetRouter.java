@@ -4,13 +4,7 @@
  */
 package routing;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import core.Connection;
 import core.DTNHost;
@@ -56,6 +50,11 @@ public class ProphetRouter extends ActiveRouter {
 	public static final String BETA_S = "beta";
 
 	/**
+	 * Drop policy to decide how the message should be dropped when the buffer is full.
+	 */
+	public static final String DROP_POLICY_S = "dropPolicy";
+
+	/**
 	 * the value of nrof seconds in time unit -setting
 	 */
 	protected int secondsInTimeUnit;
@@ -63,6 +62,8 @@ public class ProphetRouter extends ActiveRouter {
 	 * value of beta setting
 	 */
 	protected double beta;
+
+	protected DropPolicy dropPolicy;
 
 	/**
 	 * delivery predictabilities
@@ -89,6 +90,13 @@ public class ProphetRouter extends ActiveRouter {
 			beta = DEFAULT_BETA;
 		}
 
+		/* Drop policy */
+		if (prophetSettings.contains(DROP_POLICY_S)) {
+			dropPolicy = DropPolicy.of(prophetSettings.getInt(DROP_POLICY_S));
+		} else {
+			dropPolicy = DropPolicy.FIFO;
+		}
+
 		initPreds();
 	}
 
@@ -101,6 +109,7 @@ public class ProphetRouter extends ActiveRouter {
 		super(r);
 		this.secondsInTimeUnit = r.secondsInTimeUnit;
 		this.beta = r.beta;
+		this.dropPolicy = r.dropPolicy;
 		initPreds();
 	}
 
@@ -325,9 +334,9 @@ public class ProphetRouter extends ActiveRouter {
 	/**
 	 * Drop policies used to decide which message should be dropped when the buffer is full.
 	 *
+	 * @author narwa
 	 * @see "Evaluation of Queueing Policies and Forwarding Strategies for Routing in
 	 * Intermittently Connected Networks" by Lindgren et al.
-	 * @author narwa
 	 */
 	enum DropPolicy {
 		FIFO(1),
