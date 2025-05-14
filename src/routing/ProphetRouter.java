@@ -184,6 +184,7 @@ public class ProphetRouter extends ActiveRouter {
 				forwardingComparator = new GRTRTupleComparator();
 				break;
 			case COIN:
+				forwardingComparator = null;
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown forwarding strategy/comparator: " + forwardingStrategy);
@@ -344,7 +345,11 @@ public class ProphetRouter extends ActiveRouter {
 		}
 		// System.out.println(messages);
 		// sort the message-connection tuples
-		Collections.sort(messages, forwardingComparator);
+		if (forwardingStrategy == ForwardingStrategy.COIN) {
+			Collections.shuffle(messages);
+		} else {
+			messages.sort(forwardingComparator);
+		}
 		return tryMessagesForConnected(messages);    // try to send messages
 	}
 
