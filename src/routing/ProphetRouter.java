@@ -275,6 +275,98 @@ public class ProphetRouter extends ActiveRouter {
 		return tryMessagesForConnected(messages);    // try to send messages
 	}
 
+	/// ActiveRouter's OVERRIDDEN METHODS
+
+	@Override
+	protected boolean makeRoomForMessage(int size) {
+		if (size > this.getBufferSize()) {
+			return false;
+		}
+
+		// the current free buffer
+		int freeBuffer = this.getFreeBufferSize();
+
+		while (freeBuffer < size) {
+			Message toBeDropped;
+			switch (dropPolicy) {
+				case FIFO:
+					toBeDropped = getOldestMessage(true);
+					break;
+				case MOFO:
+
+				case MOPR:
+
+				case SHLI:
+					toBeDropped = getShortestLifeMessage(true);
+					break;
+				case LEPR:
+					toBeDropped = getLeastProbableMessage(true);
+					break;
+				default:
+					throw new Error("Bjir");
+			}
+
+			// can't be deleted, there's none
+			if (toBeDropped == null) {
+				return false;
+			}
+
+			/* delete message from the buffer as "drop" */
+			deleteMessage(toBeDropped.getId(), true);
+			freeBuffer += toBeDropped.getSize();
+		}
+
+		return true;
+	}
+
+	/**
+	 * SHLI – Evict shortest life time first In the DTN architecture
+	 * [2], each message has a timeout value which specifies when
+	 * it is no longer useful and should be deleted. If this policy
+	 * is used, the message with the shortest remaining life time is
+	 * the first to be dropped.
+	 *
+	 * @author jordan
+	 * */
+	public Message getShortestLifeMessage(boolean excludeMsgBeingSent) {
+		Message shortestLife = null;
+		for (Message m : getMessageCollection()) {
+			// skip the message(s) that router is sending
+			if (excludeMsgBeingSent && isSending(m.getId())) {
+				continue;
+			}
+
+			if (shortestLife == null) {
+				shortestLife = m;
+			} else if (shortestLife.getTtl() > m.getTtl()) {
+				shortestLife = m;
+			}
+		}
+
+		return shortestLife;
+	}
+
+	/**
+	 * LEPR – Evict least probable first Since the node is least
+	 * likely to deliver a message for which it has a low P-value,
+	 * drop the message for which the node has the lowest P-value.
+	 *
+	 * @author narwa
+	 */
+	protected Message getLeastProbableMessage(boolean excludeMsgBeingSent) {
+		SortedMap<Double, Message> msgPreds = new TreeMap<>();
+		for (Message message : getMessageCollection()) {
+			// skip the message(s) that router is sending
+			if (excludeMsgBeingSent && isSending(message.getId())) {
+				continue;
+			}
+
+			double p = this.getPredFor(message.getTo());
+			msgPreds.put(p, message);
+		}
+		return msgPreds.get(msgPreds.firstKey());
+	}
+
 	/**
 	 * Comparator for Message-Connection-Tuples that orders the tuples by
 	 * their delivery probability by the host on the other side of the
