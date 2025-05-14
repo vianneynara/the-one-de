@@ -178,12 +178,10 @@ public class ProphetRouter extends ActiveRouter {
 	 */
 	protected void updateTransitivePreds(DTNHost host) {
 		MessageRouter otherRouter = host.getRouter();
-		assert otherRouter instanceof ProphetRouter : "PRoPHET only works " +
-			" with other routers of same type";
+		assert otherRouter instanceof ProphetRouter : "PRoPHET only works " + " with other routers of same type";
 
 		double pForHost = getPredFor(host); // P(a,b)
-		Map<DTNHost, Double> othersPreds =
-			((ProphetRouter) otherRouter).getDeliveryPreds();
+		Map<DTNHost, Double> othersPreds = ((ProphetRouter) otherRouter).getDeliveryPreds();
 
 		for (Map.Entry<DTNHost, Double> e : othersPreds.entrySet()) {
 			if (e.getKey() == getHost()) {
@@ -204,8 +202,7 @@ public class ProphetRouter extends ActiveRouter {
 	 * @see #SECONDS_IN_UNIT_S
 	 */
 	void ageDeliveryPreds() {
-		double timeDiff = (SimClock.getTime() - this.lastAgeUpdate) /
-			secondsInTimeUnit;
+		double timeDiff = (SimClock.getTime() - this.lastAgeUpdate) / secondsInTimeUnit;
 
 		if (timeDiff == 0) {
 			return;
@@ -251,8 +248,7 @@ public class ProphetRouter extends ActiveRouter {
 	 * @return The return value of {@link #tryMessagesForConnected(List)}
 	 */
 	protected Tuple<Message, Connection> tryOtherMessages() {
-		List<Tuple<Message, Connection>> messages =
-			new ArrayList<Tuple<Message, Connection>>();
+		List<Tuple<Message, Connection>> messages = new ArrayList<Tuple<Message, Connection>>();
 
 		Collection<Message> msgCollection = getMessageCollection();
 		
@@ -293,7 +289,7 @@ public class ProphetRouter extends ActiveRouter {
 	 * We modify this to support MOFO and MOPR drop policies.
 	 *
 	 * @author {jordan, narwa}
-	 * */
+	 */
 	@Override
 	public boolean createNewMessage(Message m) {
 		switch (dropPolicy) {
@@ -312,7 +308,7 @@ public class ProphetRouter extends ActiveRouter {
 	 * We modify this so that we could use other drop policies while trying to free the buffer.
 	 *
 	 * @author {jordan, narwa}
-	 * */
+	 */
 	@Override
 	protected boolean makeRoomForMessage(int size) {
 		// check whether the message is too big
@@ -365,26 +361,25 @@ public class ProphetRouter extends ActiveRouter {
 	 * have not been forwarded a few times more chances of getting forwarded.
 	 *
 	 * @author jordan
-     */
-    public Message getMostForward(boolean excludeMsgBeingSent) {
-        Collection<Message> messages = this.getMessageCollection();
-        Message mostForward = null;
-        for (Message m : messages) {
+	 */
+	public Message getMostForward(boolean excludeMsgBeingSent) {
+		Collection<Message> messages = this.getMessageCollection();
+		Message mostForward = null;
+		for (Message m : messages) {
 			// skip the message(s) that router is sending
-            if (excludeMsgBeingSent && isSending(m.getId())) {
-                continue;
-            }
+			if (excludeMsgBeingSent && isSending(m.getId())) {
+				continue;
+			}
 
-            if (mostForward == null ) {
-                mostForward = m;
-            }
-            else if ((int) mostForward.getProperty(PROP_MOFO) > (int) m.getProperty(PROP_MOFO)) {
-                mostForward = m;
-            }
-        }
+			if (mostForward == null) {
+				mostForward = m;
+			} else if ((int) mostForward.getProperty(PROP_MOFO) > (int) m.getProperty(PROP_MOFO)) {
+				mostForward = m;
+			}
+		}
 
-        return mostForward;
-    }
+		return mostForward;
+	}
 
 	/**
 	 * MOPR – Evict most favorably forwarded first.
@@ -418,8 +413,8 @@ public class ProphetRouter extends ActiveRouter {
 	 * the first to be dropped.
 	 *
 	 * @author jordan
-	 * */
-	public Message getShortestLifeMessage(boolean excludeMsgBeingSent) {
+	 */
+	protected Message getShortestLifeMessage(boolean excludeMsgBeingSent) {
 		Message shortestLife = null;
 		for (Message m : getMessageCollection()) {
 			// skip the message(s) that router is sending
@@ -463,19 +458,13 @@ public class ProphetRouter extends ActiveRouter {
 	 * their delivery probability by the host on the other side of the
 	 * connection (GRTRMax)
 	 */
-	class TupleComparator implements Comparator
-		<Tuple<Message, Connection>> {
+	class TupleComparator implements Comparator<Tuple<Message, Connection>> {
 
-		public int compare(Tuple<Message, Connection> tuple1,
-						   Tuple<Message, Connection> tuple2) {
+		public int compare(Tuple<Message, Connection> tuple1, Tuple<Message, Connection> tuple2) {
 			// delivery probability of tuple1's message with tuple1's connection
-			double p1 = ((ProphetRouter) tuple1.getValue().
-				getOtherNode(getHost()).getRouter()).getPredFor(
-				tuple1.getKey().getTo());
+			double p1 = ((ProphetRouter) tuple1.getValue().getOtherNode(getHost()).getRouter()).getPredFor(tuple1.getKey().getTo());
 			// -"- tuple2...
-			double p2 = ((ProphetRouter) tuple2.getValue().
-				getOtherNode(getHost()).getRouter()).getPredFor(
-				tuple2.getKey().getTo());
+			double p2 = ((ProphetRouter) tuple2.getValue().getOtherNode(getHost()).getRouter()).getPredFor(tuple2.getKey().getTo());
 
 			// bigger probability should come first
 			if (p2 - p1 == 0) {
@@ -493,15 +482,13 @@ public class ProphetRouter extends ActiveRouter {
 	public RoutingInfo getRoutingInfo() {
 		ageDeliveryPreds();
 		RoutingInfo top = super.getRoutingInfo();
-		RoutingInfo ri = new RoutingInfo(preds.size() +
-			" delivery prediction(s)");
+		RoutingInfo ri = new RoutingInfo(preds.size() + " delivery prediction(s)");
 
 		for (Map.Entry<DTNHost, Double> e : preds.entrySet()) {
 			DTNHost host = e.getKey();
 			Double value = e.getValue();
 
-			ri.addMoreInfo(new RoutingInfo(String.format("%s : %.6f",
-				host, value)));
+			ri.addMoreInfo(new RoutingInfo(String.format("%s : %.6f", host, value)));
 		}
 
 		top.addMoreInfo(ri);
@@ -522,11 +509,7 @@ public class ProphetRouter extends ActiveRouter {
 	 * Intermittently Connected Networks" by Lindgren et al.
 	 */
 	enum DropPolicy {
-		FIFO(1),
-		MOFO(2),
-		MOPR(3),
-		SHLI(4),
-		LEPR(5);
+		FIFO(1), MOFO(2), MOPR(3), SHLI(4), LEPR(5);
 
 		final int order;
 
