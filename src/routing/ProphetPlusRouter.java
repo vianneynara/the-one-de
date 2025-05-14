@@ -127,7 +127,7 @@ public class ProphetPlusRouter extends ProphetRouter {
 					continue;
 				}
 
-				tryAllMessagesToAllConnections();
+//				tryAllMessagesToAllConnections();
 
 				// simplified parameters
 				final double peerPred = peerRouter.getPredFor(m.getTo());
