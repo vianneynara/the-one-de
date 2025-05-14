@@ -95,7 +95,7 @@ public class ExternalMovementReader {
 	/**
 	 * Reads all new id-coordinate tuples that belong to the same time instance
 	 * @return A list of tuples or empty list if there were no more moves
-	 * @throws SettingError if an invalid line was read
+	 * @throws SettingsError if an invalid line was read
 	 */
 	public List<Tuple<String, Coord>> readNextMovements() {
 		ArrayList<Tuple<String, Coord>> moves = 
@@ -123,7 +123,7 @@ public class ExternalMovementReader {
 			lastLine = scanner.nextLine();
 			
 			if (lastLine.trim().length() == 0 || 
-					lastLine.startsWith(COMMENT_PREFIX)) {
+					(lastLine.startsWith(COMMENT_PREFIX))) {
 				continue; /* skip empty and comment lines */
 			}
 						
