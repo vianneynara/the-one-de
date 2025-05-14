@@ -12,6 +12,7 @@ import core.Settings;
  * area.
  * <p>
  * Modified to simulate according to the paper of prophet.
+ * @author narwa
  */
 public class GridCrowdMovement extends MovementModel {
 
@@ -19,6 +20,7 @@ public class GridCrowdMovement extends MovementModel {
 	 * how many waypoints should there be per path
 	 */
 	private static final int PATH_LENGTH = 1;
+
 	public static final int GATHERING_AREA = 12;
 	public static Integer ROW_SIZE;
 	public static Integer COL_SIZE;
