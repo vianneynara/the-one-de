@@ -1,0 +1,17 @@
+GRID CROWD 3x4 PROPHET - Random vs FIFO
+
+.\one.bat -b 4 .\conf\gridcrowd-prophet1.conf
+.\one.bat -b 4 .\conf\gridcrowd-prophet1.conf
+.\one.bat -b 4 .\conf\gridcrowd-prophetplus1.conf
+.\one.bat -b 4 .\conf\gridcrowd-prophetplus2.conf
+.\one.bat -b 4 .\conf\gridcrowd-prophetrandom1.conf
+.\one.bat -b 4 .\conf\gridcrowd-prophetrandom2.conf
+
+HAGGLE3 PROPHET - Random vs FIFO
+
+ .\one.bat -b 4 .\conf\haggle3\h3-prophet1.conf
+ .\one.bat -b 4 .\conf\haggle3\h3-prophet2.conf
+ .\one.bat -b 4 .\conf\haggle3\h3-prophetplus1.conf
+ .\one.bat -b 4 .\conf\haggle3\h3-prophetplus2.conf
+ .\one.bat -b 4 .\conf\haggle3\h3-prophetrandom1.conf
+ .\one.bat -b 4 .\conf\haggle3\h3-prophetrandom2.conf
