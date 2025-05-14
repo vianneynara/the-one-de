@@ -54,6 +54,18 @@ public class ProphetRouter extends ActiveRouter {
 	 */
 	public static final String DROP_POLICY_S = "dropPolicy";
 
+	/// ESSENTIAL MESSAGE PROPERTIES
+
+	/**
+	 * Message property key for MOFO.
+	 */
+	public static final String PROP_MOFO = PROPHET_NS + "." + "nrOfForwarded";
+
+	/**
+	 * Message property key for MOPR. Favorable Forwarded (Predictability).
+	 */
+	public static final String PROP_MOPR = PROPHET_NS + "." + "FP";
+
 	/**
 	 * the value of nrof seconds in time unit -setting
 	 */
@@ -275,10 +287,35 @@ public class ProphetRouter extends ActiveRouter {
 		return tryMessagesForConnected(messages);    // try to send messages
 	}
 
-	/// ActiveRouter's OVERRIDDEN METHODS
+	// ActiveRouter's OVERRIDDEN METHODS
 
+	/**
+	 * We modify this to support MOFO and MOPR drop policies.
+	 *
+	 * @author {jordan, narwa}
+	 * */
+	@Override
+	public boolean createNewMessage(Message m) {
+		switch (dropPolicy) {
+			case DropPolicy.MOFO:
+				m.addProperty(PROP_MOFO, 0);
+				return super.createNewMessage(m);
+			case DropPolicy.MOPR:
+				m.addProperty(PROP_MOPR, getPredFor(m.getTo()));
+				return super.createNewMessage(m);
+			default:
+				return super.createNewMessage(m);
+		}
+	}
+
+	/**
+	 * We modify this so that we could use other drop policies while trying to free the buffer.
+	 *
+	 * @author {jordan, narwa}
+	 * */
 	@Override
 	protected boolean makeRoomForMessage(int size) {
+		// check whether the message is too big
 		if (size > this.getBufferSize()) {
 			return false;
 		}
@@ -293,9 +330,11 @@ public class ProphetRouter extends ActiveRouter {
 					toBeDropped = getOldestMessage(true);
 					break;
 				case MOFO:
-
+					toBeDropped = getMostForward(true);
+					break;
 				case MOPR:
-
+					toBeDropped = getHighestFP(true);
+					break;
 				case SHLI:
 					toBeDropped = getShortestLifeMessage(true);
 					break;
@@ -317,6 +356,58 @@ public class ProphetRouter extends ActiveRouter {
 		}
 
 		return true;
+	}
+
+	/**
+	 * MOFO – Evict most forwarded first In an attempt to maximize the dispersion of messages through the network,
+	 * this policy requires that the routing agent keeps track of the number of times each message has been forwarded.
+	 * The message that has been forwarded the largest number of times is the first to be dropped, thus giving messages that
+	 * have not been forwarded a few times more chances of getting forwarded.
+	 *
+	 * @author jordan
+     */
+    public Message getMostForward(boolean excludeMsgBeingSent) {
+        Collection<Message> messages = this.getMessageCollection();
+        Message mostForward = null;
+        for (Message m : messages) {
+			// skip the message(s) that router is sending
+            if (excludeMsgBeingSent && isSending(m.getId())) {
+                continue;
+            }
+
+            if (mostForward == null ) {
+                mostForward = m;
+            }
+            else if ((int) mostForward.getProperty(PROP_MOFO) > (int) m.getProperty(PROP_MOFO)) {
+                mostForward = m;
+            }
+        }
+
+        return mostForward;
+    }
+
+	/**
+	 * MOPR – Evict most favorably forwarded first.
+	 *
+	 * @author jordan
+	 */
+	protected Message getHighestFP(boolean excludeMsgBeingSent) {
+		Collection<Message> messages = this.getMessageCollection();
+		Message highestFP = null;
+		for (Message m : messages) {
+			// skip the message(s) that router is sending
+			if (excludeMsgBeingSent && isSending(m.getId())) {
+				continue;
+			}
+
+			if (highestFP == null) {
+				highestFP = m;
+			} else if ((double) highestFP.getProperty(PROP_MOPR) > (double) m.getProperty(PROP_MOPR)) {
+				highestFP = m;
+			}
+		}
+
+		return highestFP;
 	}
 
 	/**
