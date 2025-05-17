@@ -120,7 +120,7 @@ public class ProphetRouter extends ActiveRouter {
 
 		/* Drop policy */
 		if (prophetSettings.contains(DROP_POLICY_S)) {
-			dropPolicy = DropPolicy.of(prophetSettings.getInt(DROP_POLICY_S));
+			dropPolicy = DropPolicy.of(prophetSettings.getSetting(DROP_POLICY_S));
 		} else {
 			dropPolicy = DropPolicy.FIFO;
 		}
@@ -579,16 +579,18 @@ public class ProphetRouter extends ActiveRouter {
 	 * Intermittently Connected Networks" by Lindgren et al.
 	 */
 	enum DropPolicy {
-		FIFO(1),
-		MOFO(2),
-		MOPR(3),
-		SHLI(4),
-		LEPR(5);
+		FIFO(1, "FIFO"),
+		SHLI(4, "SHLI"),
+		MOPR(3, "MOPR"),
+		MOFO(2, "MOFO"),
+		LEPR(5, "LEPR");
 
 		final int order;
+		final String name;
 
-		DropPolicy(int order) {
+		DropPolicy(int order, String name) {
 			this.order = order;
+			this.name = name;
 		}
 
 		public static DropPolicy of(int number) {
@@ -599,6 +601,16 @@ public class ProphetRouter extends ActiveRouter {
 			}
 
 			throw new IllegalArgumentException("Unknown drop policy: " + number);
+		}
+
+		public static DropPolicy of(String name) {
+			for (DropPolicy dp : DropPolicy.values()) {
+				if (dp.name.equalsIgnoreCase(name)) {
+					return dp;
+				}
+			}
+
+			throw new IllegalArgumentException("Unknown drop policy: " + name);
 		}
 	}
 
