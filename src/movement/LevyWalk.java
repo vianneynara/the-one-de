@@ -18,10 +18,6 @@ public class LevyWalk extends MovementModel {
 	 * Namespace for {@link #miu} in the setting.
 	 */
 	private static final String MIU_S = "miu";
-	/**
-	 * Namespace for {@link #stepsRange} in the setting.
-	 */
-	private static final String STEPSRANGE_S = "stepsRange";
 
 	/**
 	 * Alpha value defines the slope parameter (flight lengths).
@@ -31,10 +27,6 @@ public class LevyWalk extends MovementModel {
 	 * miu defines the pause times.
 	 */
 	protected double miu;
-	/**
-	 * Number of steps for each router (ranged).
-	 */
-	protected int[] stepsRange;
 
 	protected Coord location;
 
@@ -49,7 +41,6 @@ public class LevyWalk extends MovementModel {
 			this.alpha = s.getDouble(MIU_S);
 		} else this.alpha = 1.0f;
 
-		this.stepsRange = s.getCsvInts(STEPSRANGE_S);
 		this.location = randomCoord();
 	}
 
@@ -57,7 +48,6 @@ public class LevyWalk extends MovementModel {
 		super(lw);
 		this.alpha = lw.alpha;
 		this.miu = lw.miu;
-		this.stepsRange = lw.stepsRange;
 		this.location = randomCoord();
 	}
 
