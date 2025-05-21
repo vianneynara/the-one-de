@@ -1,0 +1,117 @@
+package movement;
+
+import core.Coord;
+import core.Settings;
+
+/**
+ * Levy walk movement, adapted from Lévy flight model.
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/L%C3%A9vy_flight">Lévy flight</a>
+ * @see <a href="https://ieeexplore.ieee.org/document/5750071">On the Levy-Walk Nature of Human Mobility</a>
+ */
+public class LevyWalk extends MovementModel {
+	/**
+	 * Namespace for {@link #alpha} in the setting.
+	 */
+	private static final String ALPHA_S = "alpha";
+	/**
+	 * Namespace for {@link #miu} in the setting.
+	 */
+	private static final String MIU_S = "miu";
+	/**
+	 * Namespace for {@link #stepsRange} in the setting.
+	 */
+	private static final String STEPSRANGE_S = "stepsRange";
+
+	/**
+	 * Alpha value defines the slope parameter (flight lengths).
+	 */
+	protected double alpha;
+	/**
+	 * miu defines the pause times.
+	 */
+	protected double miu;
+	/**
+	 * Number of steps for each router (ranged).
+	 */
+	protected int[] stepsRange;
+
+	protected Coord location;
+
+	public LevyWalk(Settings s) {
+		super(s);
+
+		if (s.contains(ALPHA_S)) {
+			this.alpha = s.getDouble(ALPHA_S);
+		} else this.alpha = 3.0f;
+
+		if (s.contains(MIU_S)) {
+			this.alpha = s.getDouble(MIU_S);
+		} else this.alpha = 1.0f;
+
+		this.stepsRange = s.getCsvInts(STEPSRANGE_S);
+		this.location = randomCoord();
+	}
+
+	public LevyWalk(LevyWalk lw) {
+		super(lw);
+		this.alpha = lw.alpha;
+		this.miu = lw.miu;
+		this.stepsRange = lw.stepsRange;
+		this.location = randomCoord();
+	}
+
+	@Override
+	public Path getPath() {
+//		final int steps = rng.nextInt(stepsRange[0], stepsRange[1] + 1);
+		final Path path = new Path(generateSpeed());
+
+//		for (int i = 0; i < steps; i++) {
+			int nextX;
+			int nextY;
+			do {
+				int step_length = nextPareto(alpha, 3);
+
+				/* Calculating a random direction (circle) */
+				double theta = rng.nextDouble(0, Math.PI - 0);
+
+				/* Calculate the next X and Y according to the direction */
+				nextX = (int) (location.getX() + step_length * Math.cos(theta));
+				nextY = (int) (location.getY() + step_length * Math.sin(theta));
+			} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 || nextY <= 0);
+			Coord nextLocation = new Coord(nextX, nextY);
+			path.addWaypoint(nextLocation);
+			location = nextLocation;
+//		}
+
+		return path;
+	}
+
+	@Override
+	public Coord getInitialLocation() {
+		assert rng != null : "MovementModel not initialized!";
+		return randomCoord();
+	}
+
+	@Override
+	public LevyWalk replicate() {
+		return new LevyWalk(this);
+	}
+
+	/**
+	 * Generates an integer from calculating with pareto.
+	 *
+	 * @param alpha slope parameter
+	 * @param xm    scale parameter
+	 * @return integer
+	 */
+	private int nextPareto(double alpha, double xm) {
+		// uniform variable to inverse cumulative distribution function -> [0,1]
+		double uniformRandom = rng.nextDouble();
+		return (int) (xm / Math.pow(1.0 - uniformRandom, 1.0 / alpha));
+	}
+
+	protected Coord randomCoord() {
+		return new Coord(rng.nextDouble() * getMaxX(), rng.nextDouble() * getMaxY());
+	}
+}
