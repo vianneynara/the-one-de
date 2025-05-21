@@ -20,11 +20,11 @@ public class LevyWalk extends MovementModel {
 	private static final String MIU_S = "miu";
 
 	/**
-	 * Alpha value defines the slope parameter (flight lengths).
+	 * Alpha value defines the slope parameter (flight lengths). Typically, between 1.0 and 3.0.
 	 */
 	protected double alpha;
 	/**
-	 * miu defines the pause times.
+	 * Miu defines the pause times. Typically, between 1.0 and 10.0.
 	 */
 	protected double miu;
 
@@ -38,8 +38,8 @@ public class LevyWalk extends MovementModel {
 		} else this.alpha = 3.0f;
 
 		if (s.contains(MIU_S)) {
-			this.alpha = s.getDouble(MIU_S);
-		} else this.alpha = 1.0f;
+			this.miu = s.getDouble(MIU_S);
+		} else this.miu = 1.0f;
 
 		this.location = randomCoord();
 	}
@@ -56,21 +56,20 @@ public class LevyWalk extends MovementModel {
 		final Path path = new Path(generateSpeed());
 		path.addWaypoint(location.clone());
 
-		int nextX;
-		int nextY;
+		double nextX;
+		double nextY;
 		do {
-			double step_length = nextPareto(alpha);
-			System.out.printf("Step length: %f\n", step_length);
+			double step_length = nextPareto(alpha, miu);
+//			System.out.printf("Step length: %f\n", step_length);
 
 			/* Calculating a random direction (circle) */
-			double theta = rng.nextDouble(0, 2 * Math.PI);
+			double theta = rng.nextDouble() * 2 * Math.PI;
 
 			/* Calculate the next X and Y according to the direction */
-			nextX = (int) (location.getX() + step_length * Math.cos(theta));
-			nextY = (int) (location.getY() + step_length * Math.sin(theta));
+			nextX = (location.getX() + step_length * Math.cos(theta));
+			nextY = (location.getY() + step_length * Math.sin(theta));
 		} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 || nextY <= 0);
-//		} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 + 200 || nextY <= 0 + 200);
-//		} while (!(nextX < getMaxX() && nextY < getMaxY() && nextX > 0 && nextY > 0));
+
 		Coord nextLocation = new Coord(nextX, nextY);
 		path.addWaypoint(nextLocation);
 		location = nextLocation;
@@ -95,10 +94,10 @@ public class LevyWalk extends MovementModel {
 	 * @param alpha slope parameter
 	 * @return integer
 	 */
-	private double nextPareto(double alpha) {
+	private double nextPareto(double alpha, double miu) {
 		// uniform variable to inverse cumulative distribution function -> [0,1]
 		double uniformRandom = rng.nextDouble();
-		return Math.pow(1.0 - uniformRandom, -1.0 / alpha);
+		return miu / Math.pow(1.0 - uniformRandom, -1.0 / alpha);
 	}
 
 	protected Coord randomCoord() {
