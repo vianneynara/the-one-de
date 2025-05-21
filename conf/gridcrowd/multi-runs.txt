@@ -1,0 +1,26 @@
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=FIFO@@ProphetRouter.forwardingStrategy=GRTRMax .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=FIFO@@ProphetRouter.forwardingStrategy=GRTRSort .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=FIFO@@ProphetRouter.forwardingStrategy=GRTR .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=FIFO@@ProphetRouter.forwardingStrategy=COIN .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOFO@@ProphetRouter.forwardingStrategy=GRTRMax .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOFO@@ProphetRouter.forwardingStrategy=GRTRSort .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOFO@@ProphetRouter.forwardingStrategy=GRTR .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOFO@@ProphetRouter.forwardingStrategy=COIN .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOPR@@ProphetRouter.forwardingStrategy=GRTRMax .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOPR@@ProphetRouter.forwardingStrategy=GRTRSort .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOPR@@ProphetRouter.forwardingStrategy=GRTR .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=MOPR@@ProphetRouter.forwardingStrategy=COIN .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=SHLI@@ProphetRouter.forwardingStrategy=GRTRMax .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=SHLI@@ProphetRouter.forwardingStrategy=GRTRSort .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=SHLI@@ProphetRouter.forwardingStrategy=GRTR .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=SHLI@@ProphetRouter.forwardingStrategy=COIN .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=LEPR@@ProphetRouter.forwardingStrategy=GRTRMax .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=LEPR@@ProphetRouter.forwardingStrategy=GRTRSort .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=LEPR@@ProphetRouter.forwardingStrategy=GRTR .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+.\one.bat -b 20 -d ProphetRouter.dropPolicy=LEPR@@ProphetRouter.forwardingStrategy=COIN .\conf\gridcrowd\gridcrowd-prophet-multi.cfg
+
+.\compile.bat
