@@ -14,19 +14,11 @@ public class LevyWalk extends MovementModel {
 	 * Namespace for {@link #alpha} in the setting.
 	 */
 	private static final String ALPHA_S = "alpha";
-	/**
-	 * Namespace for {@link #miu} in the setting.
-	 */
-	private static final String MIU_S = "miu";
 
 	/**
 	 * Alpha value defines the slope parameter (flight lengths). Typically, between 1.0 and 3.0.
 	 */
 	protected double alpha;
-	/**
-	 * Miu defines the pause times. Typically, between 1.0 and 10.0.
-	 */
-	protected double miu;
 
 	protected Coord location;
 
@@ -37,17 +29,12 @@ public class LevyWalk extends MovementModel {
 			this.alpha = s.getDouble(ALPHA_S);
 		} else this.alpha = 3.0f;
 
-		if (s.contains(MIU_S)) {
-			this.miu = s.getDouble(MIU_S);
-		} else this.miu = 1.0f;
-
 		this.location = randomCoord();
 	}
 
 	public LevyWalk(LevyWalk lw) {
 		super(lw);
 		this.alpha = lw.alpha;
-		this.miu = lw.miu;
 		this.location = randomCoord();
 	}
 
@@ -59,7 +46,7 @@ public class LevyWalk extends MovementModel {
 		double nextX;
 		double nextY;
 		do {
-			double step_length = nextPareto(alpha, miu);
+			double step_length = nextPareto(alpha);
 			System.out.printf("Step length: %f\n", step_length);
 
 			/* Calculating a random direction (circle) */
