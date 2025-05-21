@@ -63,26 +63,24 @@ public class LevyWalk extends MovementModel {
 
 	@Override
 	public Path getPath() {
-//		final int steps = rng.nextInt(stepsRange[0], stepsRange[1] + 1);
 		final Path path = new Path(generateSpeed());
+		path.addWaypoint(location.clone());
 
-//		for (int i = 0; i < steps; i++) {
-			int nextX;
-			int nextY;
-			do {
-				int step_length = nextPareto(alpha, 3);
+		int nextX;
+		int nextY;
+		do {
+			int step_length = nextPareto(alpha, miu);
 
-				/* Calculating a random direction (circle) */
-				double theta = rng.nextDouble(0, Math.PI - 0);
+			/* Calculating a random direction (circle) */
+			double theta = rng.nextDouble(0, 2 * Math.PI);
 
-				/* Calculate the next X and Y according to the direction */
-				nextX = (int) (location.getX() + step_length * Math.cos(theta));
-				nextY = (int) (location.getY() + step_length * Math.sin(theta));
-			} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 || nextY <= 0);
-			Coord nextLocation = new Coord(nextX, nextY);
-			path.addWaypoint(nextLocation);
-			location = nextLocation;
-//		}
+			/* Calculate the next X and Y according to the direction */
+			nextX = (int) (location.getX() + step_length * Math.cos(theta));
+			nextY = (int) (location.getY() + step_length * Math.sin(theta));
+		} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 || nextY <= 0);
+		Coord nextLocation = new Coord(nextX, nextY);
+		path.addWaypoint(nextLocation);
+		location = nextLocation;
 
 		return path;
 	}
