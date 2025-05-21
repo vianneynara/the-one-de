@@ -47,7 +47,7 @@ public class LevyWalk extends MovementModel {
 		double nextY;
 		do {
 			double step_length = nextPareto(alpha);
-			System.out.printf("Step length: %f\n", step_length);
+//			System.out.printf("Step length: %f\n", step_length);
 
 			/* Calculating a random direction (circle) */
 			double theta = rng.nextDouble() * 2 * Math.PI;
