@@ -59,7 +59,8 @@ public class LevyWalk extends MovementModel {
 		int nextX;
 		int nextY;
 		do {
-			int step_length = nextPareto(alpha, miu);
+			double step_length = nextPareto(alpha);
+			System.out.printf("Step length: %f\n", step_length);
 
 			/* Calculating a random direction (circle) */
 			double theta = rng.nextDouble(0, 2 * Math.PI);
@@ -68,6 +69,8 @@ public class LevyWalk extends MovementModel {
 			nextX = (int) (location.getX() + step_length * Math.cos(theta));
 			nextY = (int) (location.getY() + step_length * Math.sin(theta));
 		} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 || nextY <= 0);
+//		} while (nextX >= getMaxX() || nextY >= getMaxY() || nextX <= 0 + 200 || nextY <= 0 + 200);
+//		} while (!(nextX < getMaxX() && nextY < getMaxY() && nextX > 0 && nextY > 0));
 		Coord nextLocation = new Coord(nextX, nextY);
 		path.addWaypoint(nextLocation);
 		location = nextLocation;
@@ -90,13 +93,12 @@ public class LevyWalk extends MovementModel {
 	 * Generates an integer from calculating with pareto.
 	 *
 	 * @param alpha slope parameter
-	 * @param xm    scale parameter
 	 * @return integer
 	 */
-	private int nextPareto(double alpha, double xm) {
+	private double nextPareto(double alpha) {
 		// uniform variable to inverse cumulative distribution function -> [0,1]
 		double uniformRandom = rng.nextDouble();
-		return (int) (xm / Math.pow(1.0 - uniformRandom, 1.0 / alpha));
+		return Math.pow(1.0 - uniformRandom, -1.0 / alpha);
 	}
 
 	protected Coord randomCoord() {
