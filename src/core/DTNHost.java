@@ -125,8 +125,6 @@ public class DTNHost implements Comparable<DTNHost> {
 
         this.pathHistory = new LinkedList<>();
         this.pathColor = generateRandomColor();
-
-        System.out.printf("ID: %s, Speed: %f, Location: %s\n", this.name, this.speed, this.location);
     }
 
     private Color generateRandomColor() {

@@ -183,33 +183,21 @@ public class PlayField extends JPanel {
 
 			// make it so that the last path is drawn as a tailing path, relative to DTNHost location
 			Iterator<Path> it = h.getPathHistory().iterator();
-
-			boolean isFirst = true;
 			while (it.hasNext()) {
 				Path path = it.next();
 				if (it.hasNext() && path.hasbeenFullyPainted()) {
 					new PathGraphic(path, h.getPathColor()).draw(g2);
 				} else {
 					Path tailingPath = new Path();
-					System.out.println(h.getLocation());
 
-					if (!isFirst) {
-						tailingPath.addWaypoint(h.getLocation()); // start from the host
-						tailingPath.addWaypoint(path.getFirstWaypoint().clone());
-					} else {
-						tailingPath.addWaypoint(path.getFirstWaypoint().clone());
-						tailingPath.addWaypoint(h.getLocation()); // start from the host
-					}
+					tailingPath.addWaypoint(h.getLocation()); // start from the host
+					tailingPath.addWaypoint(path.getFirstWaypoint().clone());
 					new PathGraphic(tailingPath, h.getPathColor()).draw(g2);
 
 					// host is at the last waypoint of the path, flag it as fully painted
 					if (coordIsClose(h.getLocation(), path.getLastWaypoint())) {
 						path.fullyPainted();
-						if (isFirst) {
-							isFirst = false;
-						}
 					}
-
 				}
 			}
 		}
