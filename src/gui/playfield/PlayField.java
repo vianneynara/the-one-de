@@ -182,7 +182,7 @@ public class PlayField extends JPanel {
 //			}
 
 			// make it so that the last path is drawn as a tailing path, relative to DTNHost location
-			Iterator<Path> it = h.getPathHistory().iterator();
+			Iterator<Path> it = new ArrayList<>(h.getPathHistory()).iterator();
 			while (it.hasNext()) {
 				Path path = it.next();
 				if (it.hasNext() && path.hasbeenFullyPainted()) {
