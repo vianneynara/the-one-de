@@ -4,7 +4,9 @@
  */
 package core;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import movement.MovementModel;
 import movement.Path;
@@ -51,6 +53,9 @@ public class DTNHost implements Comparable<DTNHost> {
     public Map<DTNHost, Duration> durPerNode;
     public Map<DTNHost, List<Duration>> listDurPerNode;
     public double totalContactTime = 0;
+
+    private List<Path> pathHistory;
+    private Color pathColor;
         
     static {
         DTNSim.registerForReset(DTNHost.class.getCanonicalName());
@@ -117,6 +122,21 @@ public class DTNHost implements Comparable<DTNHost> {
         this.listDurPerNode = new HashMap<DTNHost, List<Duration>>();
         // this.ema = new ArrayList<Double>();
         // this.ema.add(0.0);
+
+        this.pathHistory = new LinkedList<>();
+        this.pathColor = generateRandomColor();
+    }
+
+    private Color generateRandomColor() {
+        Random rand = new Random();
+        int r = rand.nextInt(256);
+        int g = rand.nextInt(256);
+        int b = rand.nextInt(256);
+        return new Color(r, g, b);
+    }
+
+    public Color getPathColor() {
+        return pathColor;
     }
 
     /**
@@ -143,6 +163,10 @@ public class DTNHost implements Comparable<DTNHost> {
      */
     public boolean isActive() {
         return this.movement.isActive();
+    }
+
+    public MovementModel getMovementModel() {
+        return this.movement;
     }
 
     /**
@@ -211,6 +235,18 @@ public class DTNHost implements Comparable<DTNHost> {
         }
 
         return lc;
+    }
+
+    public List<Path> getPathHistory() {
+        return this.pathHistory;
+    }
+
+    public Path getPreviousPath() {
+        if (!this.pathHistory.isEmpty()) {
+            return this.pathHistory.getLast();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -447,6 +483,9 @@ public class DTNHost implements Comparable<DTNHost> {
                 l.newDestination(this, this.destination, this.speed);
             }
         }
+
+        // adds the current path to the history
+        pathHistory.add(path);
 
         return true;
     }

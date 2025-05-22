@@ -4,6 +4,7 @@
  */
 package movement;
 
+import java.awt.*;
 import java.util.Random;
 
 import core.Coord;

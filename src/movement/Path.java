@@ -18,6 +18,8 @@ public class Path  {
 	/** speeds in the path legs */
 	private List<Double> speeds;
 	private int nextWpIndex;
+
+	private boolean hasBeenFullyPainted = false;
 	
 	/**
 	 * Creates a path with zero speed.
@@ -92,6 +94,24 @@ public class Path  {
 	public Coord getNextWaypoint() {
 		assert hasNext() : "Path didn't have " + (nextWpIndex+1) + ". waypoint";
 		return coords.get(nextWpIndex++);
+	}
+
+	public Coord getLastWaypoint() {
+		assert nextWpIndex != 0 : "No waypoint asked";
+		return coords.getLast();
+	}
+
+	public Coord getFirstWaypoint() {
+		assert hasNext() : "Path didn't have " + (nextWpIndex+1) + ". waypoint";
+		return coords.getFirst();
+	}
+
+	public boolean hasbeenFullyPainted() {
+		return this.hasBeenFullyPainted;
+	}
+
+	public void fullyPainted() {
+		this.hasBeenFullyPainted = true;
 	}
 	
 	/**
