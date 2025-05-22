@@ -36,6 +36,7 @@ public class PlayField extends JPanel {
 	private boolean autoClearOverlay;    // automatically clear overlay graphics
 	private MapGraphic mapGraphic;
 	private boolean showMapGraphic;
+	private boolean showNodePathTrace;
 	private ScaleReferenceGraphic refGraphic;
 
 	private BufferedImage underlayImage;
@@ -59,6 +60,7 @@ public class PlayField extends JPanel {
 		this.mapGraphic = null;
 		this.underlayImage = null;
 		this.imageTransform = null;
+		this.showNodePathTrace = false;
 		this.autoClearOverlay = true;
 	}
 
@@ -172,28 +174,21 @@ public class PlayField extends JPanel {
 
 		// draw paths
 		for (DTNHost h : w.getHosts()) {
-//			final Path prevPath = h.getPreviousPath();
-//			if ( prevPath != null) {
-//				new PathGraphic(prevPath).draw(g2);
-//			}
-//			// Has to copy because of concurrent modifications
-//			for (Path path : new ArrayList<>(h.getPathHistory())) {
-//				new PathGraphic(path, h.getPathColor()).draw(g2);
-//			}
-
 			// make it so that the last path is drawn as a tailing path, relative to DTNHost location
 			Iterator<Path> it = new ArrayList<>(h.getPathHistory()).iterator();
 			while (it.hasNext()) {
 				Path path = it.next();
 				if (it.hasNext() && path.hasbeenFullyPainted()) {
-					new PathGraphic(path, h.getPathColor()).draw(g2);
+					if (showNodePathTrace) {
+						new PathGraphic(path, h.getPathColor()).draw(g2);
+					}
 				} else {
 					Path tailingPath = new Path();
-
 					tailingPath.addWaypoint(h.getLocation()); // start from the host
 					tailingPath.addWaypoint(path.getFirstWaypoint().clone());
-					new PathGraphic(tailingPath, h.getPathColor()).draw(g2);
-
+					if (showNodePathTrace) {
+						new PathGraphic(tailingPath, h.getPathColor()).draw(g2);
+					}
 					// host is at the last waypoint of the path, flag it as fully painted
 					if (coordIsClose(h.getLocation(), path.getLastWaypoint())) {
 						path.fullyPainted();
@@ -305,4 +300,7 @@ public class PlayField extends JPanel {
 		this.setSize(minSize);
 	}
 
+	public void setShowNodePathTrace(boolean selected) {
+		this.showNodePathTrace = selected;
+	}
 }

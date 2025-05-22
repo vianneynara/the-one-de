@@ -50,6 +50,7 @@ public class SimMenuBar extends JMenuBar implements ActionListener {
 	private JCheckBoxMenuItem enableNodeCoverage;
 	private JCheckBoxMenuItem enableNodeConnections;
 	private JCheckBoxMenuItem enableMapGraphic;
+	private JCheckBoxMenuItem enableNodePathTrace;
 	private JCheckBoxMenuItem autoClearOverlay;
 	private JMenuItem clearOverlay;
 	private JMenuItem about;
@@ -77,6 +78,7 @@ public class SimMenuBar extends JMenuBar implements ActionListener {
 		enableNodeConnections = createCheckItem(pfMenu,
 				"Show node's connections", true);
 		enableMapGraphic = createCheckItem(pfMenu,"Show map graphic",true);
+		enableNodePathTrace = createCheckItem(pfMenu,"Show node path trace",false);
 		autoClearOverlay = createCheckItem(pfMenu, "Autoclear overlay",true);
 		clearOverlay = createMenuItem(pfMenu,"Clear overlays now");
 		about = createMenuItem(help,"about");
@@ -120,6 +122,9 @@ public class SimMenuBar extends JMenuBar implements ActionListener {
 		}
 		else if (source == this.enableMapGraphic) {
 			field.setShowMapGraphic(enableMapGraphic.isSelected());
+		}
+		else if (source == this.enableNodePathTrace) {
+			field.setShowNodePathTrace(enableNodePathTrace.isSelected());
 		}
 		else if (source == this.autoClearOverlay) {
 			field.setAutoClearOverlay(autoClearOverlay.isSelected());
