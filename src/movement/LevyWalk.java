@@ -28,14 +28,11 @@ public class LevyWalk extends MovementModel {
 		if (s.contains(ALPHA_S)) {
 			this.alpha = s.getDouble(ALPHA_S);
 		} else this.alpha = 3.0f;
-
-		this.location = randomCoord();
 	}
 
 	public LevyWalk(LevyWalk lw) {
 		super(lw);
 		this.alpha = lw.alpha;
-		this.location = randomCoord();
 	}
 
 	@Override
@@ -67,7 +64,9 @@ public class LevyWalk extends MovementModel {
 	@Override
 	public Coord getInitialLocation() {
 		assert rng != null : "MovementModel not initialized!";
-		return randomCoord();
+		Coord c = randomCoord();
+		this.location = c;
+		return c;
 	}
 
 	@Override
