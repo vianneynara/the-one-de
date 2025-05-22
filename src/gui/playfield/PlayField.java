@@ -172,7 +172,7 @@ public class PlayField extends JPanel {
 			new NodeGraphic(h).draw(g2); // TODO: Optimization..?
 		}
 
-		// draw paths
+		// flag and draw paths
 		for (DTNHost h : w.getHosts()) {
 			// make it so that the last path is drawn as a tailing path, relative to DTNHost location
 			Iterator<Path> it = new ArrayList<>(h.getPathHistory()).iterator();
