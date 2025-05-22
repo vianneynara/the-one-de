@@ -135,6 +135,7 @@ public class Coord implements Cloneable, Comparable<Coord> {
 	 * @return -1, 0 or 1 if this node is before, in the same place or
 	 * after the other coordinate
 	 */
+	@Override
 	public int compareTo(Coord other) {
 		if (this.y < other.y) {
 			return -1;
